@@ -1,0 +1,45 @@
+#ifndef _VERTEXH_
+#define _VERTEXH_
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <inttypes.h>
+
+typedef uint32_t u32;
+typedef struct VertexSt *vertex;
+typedef struct NeighbSt *neighb_t;
+
+struct NeighbSt {
+    vertex vertex_pt;
+    neighb_t next;
+};
+
+struct VertexSt {
+    u32 tag;
+    u32 name;
+    u32 color;
+    u32 grade;
+    neighb_t neighList;
+    neighb_t lastNeigh;
+};
+
+vertex create_vertex(u32 tag, u32 name, u32 color, u32 grade);
+vertex destroy_vertex(vertex v);
+void set_vertex_tag(u32 t, vertex v);
+void set_vertex_color(u32 c, vertex v);
+void set_vertex_grade(u32 grade, vertex v);
+void set_vertex_name(u32 name, vertex v);
+void modify_vertex_values(u32 tag, u32 name, u32 color, u32 grade, vertex v);
+u32 get_vertex_tag(vertex v);
+u32 get_vertex_color(vertex v);
+u32 get_vertex_grade(vertex v);
+u32 get_vertex_name(vertex v);
+neighb_t get_vertex_neigh_list(vertex v);
+void print_vertex_data(vertex v);
+void print_all_neighs_data(vertex v);
+void printVertexNeighs(vertex v);
+void append_neigh_to_vertex(vertex vneigh, vertex v);
+neighb_t list_destroy(neighb_t list);
+void make_vertex_neighbs(vertex v1, vertex v2);
+
+#endif

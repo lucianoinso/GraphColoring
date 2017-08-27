@@ -1,0 +1,1 @@
+for ((n=0;n<10;n++)); do { time ./WinterIsComing < testgraphs/lux4  >/dev/null; } 2>&1 | grep real >> lux4withoutcmp.txt; done
