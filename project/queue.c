@@ -1,6 +1,6 @@
 #include "queue.h"
 
-qnode createNode(vertex v){
+qnode createQueueNode(vertex v){
     qnode n = malloc(sizeof(struct QueueNodeSt));
     n->vertex_pt = v;
     n->next = NULL;
@@ -25,9 +25,13 @@ void destroyQueue(queue q){
     }
 }
 
+bool isEmpty(queue q){
+    return (q->front == NULL);
+}
+
 void enqueue(queue q, vertex v){
     if (q != NULL){
-        qnode n = createNode(v);
+        qnode n = createQueueNode(v);
         if (q->rear == NULL){
             q->front = q->rear = n;
         } else {

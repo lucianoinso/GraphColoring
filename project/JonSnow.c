@@ -1,4 +1,5 @@
 #include "JonSnow.h"
+#include <time.h>
 #define MAX_LINE 4096
 
 struct WinterSt {
@@ -21,21 +22,26 @@ struct WinterSt {
 
 WinterIsHere WinterIsComing() {
     char input[MAX_LINE];
+    char *line = malloc(sizeof(char)*4096);;
     int vCount, eCount;
 
-    printf("Enter vertices count: \n");
-    if(fgets(input, MAX_LINE, stdin) == NULL) {
-        return NULL;
+    // Descartamos las primeras lineas que comienzan con 'c'
+    do {
+        if(fgets(input, MAX_LINE, stdin) == NULL) {
+            return NULL;
+        }
+        sscanf(input, "%s", line);
     }
-    sscanf(input, "%d", &vCount);
+    while(*line == 'c');
+    free(line);
 
-    printf("Enter edge count: \n");
-    if(fgets(input, MAX_LINE, stdin) == NULL) {
-        return NULL;
-    }
-    sscanf(input, "%d", &eCount);
+    // Parseamos la linea que empieza con 'p edge' para obtener la cantidad
+    // de vertices y aristas
+    sscanf(input, "p edge %d %d", &vCount, &eCount);
 
-    printf("\n");
+//    printf("Vertices count: %d\n", vCount);
+//    printf("Edges count: %d", eCount);
+//    printf("\n");
 
     WinterIsHere W = createGraph(vCount, eCount);
 
@@ -47,22 +53,21 @@ WinterIsHere WinterIsComing() {
     uint j = 0;
 
     while(j < W->NumeroDeLados) {
-    // MANUAL INPUT 
         if(fgets(input, MAX_LINE, stdin) == NULL) {
             return NULL;
         }
-        sscanf(input, "%" SCNu32 " %" SCNu32, &v1name, &v2name);
-        
-        // Chequeamos si el vertice ingresado ya habia sido ingresado en la
-        // carga anterior para ahorrar la busqueda ya que notamos que en varios 
+        sscanf(input, "e %" SCNu32 " %" SCNu32, &v1name, &v2name);
+
+        // Chequeamos si alguno de los vertices ingresados ya habia sido ingresado en la
+        // carga anterior para ahorrar la busqueda ya que notamos que en varios
         // de los archivos se suele cargar un vertice y luego todos sus vecinos
         // (Solo se aprecia diferencia de 1 segundo para grafos muy grandes
         // cant de vertices > 2 millones, cant de aristas > 10 millones)
         if(v1name != get_vertex_name(v1))
-          v1 = search_node(v1name, W->vertex_hashmap);
-        
+            v1 = search_node(v1name, W->vertex_hashmap);
+
         if(v2name != get_vertex_name(v2))
-          v2 = search_node(v2name, W->vertex_hashmap);
+            v2 = search_node(v2name, W->vertex_hashmap);
 
         if(v1 == NULL && v2 == NULL) {
             v1 = add_entry_to_hash_map(i, v1name, 0, 1, W->vertex_hashmap);
@@ -75,20 +80,20 @@ WinterIsHere WinterIsComing() {
             v1 = add_entry_to_hash_map(i, v1name, 0, 1, W->vertex_hashmap);
             W->orderedVertexArray[i] = v1;
             i++;
-            set_vertex_grade(get_vertex_grade(v2) + 1, v2);
+            set_vertex_grade(v2, get_vertex_grade(v2) + 1);
         } else if (v1 != NULL && v2 == NULL) {
             v2 = add_entry_to_hash_map(i, v2name, 0, 1, W->vertex_hashmap);
             W->orderedVertexArray[i] = v2;
             i++;
-            set_vertex_grade(get_vertex_grade(v1) + 1, v1);
+            set_vertex_grade(v1, get_vertex_grade(v1) + 1);
         } else { // v1 != NULL && v2 != NULL
-            set_vertex_grade(get_vertex_grade(v1) + 1, v1);
-            set_vertex_grade(get_vertex_grade(v2) + 1, v2);
+            set_vertex_grade(v1, get_vertex_grade(v1) + 1);
+            set_vertex_grade(v2, get_vertex_grade(v2) + 1);
         }
-        make_vertex_neighbs(v1, v2); // We add the neighbours to the list of each vertex
+        make_vertex_neighbs(v1, v2); // Agregamos los vertices a la lista de vecinos del otro
         j++;
     }
-//    W->orderedVertexSize = i;     // DEBUGING PURPOSE
+
     return W;
 }
 
@@ -133,7 +138,7 @@ u32 Greedy(WinterIsHere w) {
         }
         colorAux++;
        // search_and_modify_node_values(vertexAux->tag, vertexAux->name, colorAux, vertexAux->grade,w->vertex_hashmap);
-        set_vertex_color(colorAux, vertexAux);
+        set_vertex_color(vertexAux, colorAux);
         if (colorMaximo < colorAux)
             colorMaximo = colorAux;
         free(arrayColores);
@@ -142,23 +147,85 @@ u32 Greedy(WinterIsHere w) {
     return colorMaximo;
 }
 
-
 /*
     Devuelve 1 si W es bipartito, 0 si no.
     Además, si devuelve 1, colorea W con un coloreo propio de dos colores.
 */
 int Bipartito(WinterIsHere W) {
     cleanColors(W);
-    vertex v;
-    for (int i = 0; i < W->NumeroDeVertices; i++){
-        v = W->orderedVertexArray[i];
-        if(v.color == 0){
-            set_vertex_color(1, v);
-            
+    vertex v, w;
+    neighb_t vertex_neigh_list;
+    uint j = 0;
+    queue q = createQueue();
+    // Seteamos isBipartite en verdadero hasta que suceda lo contrario
+    int isBipartite = 1;
+    while (j < W->NumeroDeVertices && isBipartite){
+        // Obtenemos el primer vertice que no este coloreado le ponemos 
+        // color 1 y lo agregamos a la cola 'q'
+        for (uint i = 0; i < W->NumeroDeVertices; i++){
+            if(get_vertex_color(W->orderedVertexArray[i]) == 0){
+                v = W->orderedVertexArray[i];
+                set_vertex_color(v, 1);
+                j++;
+                enqueue(q,v);
+                break;
+            }
+        }
+        while(!isEmpty(q) && isBipartite){
+            v = dequeue(q);
+            // Obtenemos el primer vertice de la cola
+            vertex_neigh_list = get_vertex_neigh_list(v);
+            // Obtenemos los vecinos del vertice y los recorremos dentro del while
+            while (vertex_neigh_list != NULL){
+                // Obtenemos el vertice desde dentro de la estructura del nodo NeighbSt
+                w = vertex_neigh_list->vertex_pt;
+                // Si el vertice no esta coloreado continuamos
+                if (get_vertex_color(w) == 0){
+                    // Encolamos el vertice en la cola 'q' para luego colorear sus vecinos en la proxima iteracion
+                    enqueue(q, w);
+                    // Sumamos 1 a la cantidad de vertices coloreados
+                    j++;
+                    // Seteamos el color del nuevo vertice segun el color del vertice que lo agrego
+                    // Si el color del vertice que lo agrego es 1 => "3 - 1 = 2", si es 2 => "3 - 2 = 1"
+                    set_vertex_color(w, 3 - get_vertex_color(v));
+                } else if (get_vertex_color(w) == get_vertex_color(v)) {
+                    // Si encontramos en la cola un vertice con el mismo color que
+                    // el vertice que lo agrego estamos ante un grafo que no es bipartito
+                    // entonces seteamos isBipartite en 0 para que corte los ciclos y
+                    // devuelva 0 como resultado de la funcion
+                    isBipartite = 0;
+                    break;
+                }
+                // Procedemos al siguiente vertice dentro de la lista de vecinos
+                vertex_neigh_list = vertex_neigh_list->next;
+            }
         }
     }
+    destroyQueue(q);
+    return isBipartite;
 }
 
+/*
+    Devuelve 1 si el coloreo es propio, 0 si no
+*/
+int isValidColoring(WinterIsHere W){
+    vertex v, w;
+    neighb_t vertex_neigh_list;
+    int isValid = 1;
+    for (uint i = 0; i < W->NumeroDeVertices && isValid; i++) {
+        v = W->orderedVertexArray[i];
+        vertex_neigh_list = get_vertex_neigh_list(v);
+        while (vertex_neigh_list != NULL){
+            w = vertex_neigh_list->vertex_pt;
+            if (get_vertex_color(w) == get_vertex_color(v)){
+                isValid = 0;
+                break;
+            }
+            vertex_neigh_list = vertex_neigh_list->next;
+        }
+    }
+    return isValid;
+}
 
 // Funciones para extraer información de datos del grafo
 void cleanColors(WinterIsHere W) {
@@ -291,19 +358,96 @@ WinterIsHere createGraph(u32 vCount, u32 eCount) {
 
 void dumpOrderedVertexArray(WinterIsHere W, FILE *f) {
     for (uint i = 0; i < W->NumeroDeVertices; i++) {
-        fprintf(f, "Pos:%u, Name: %" SCNu32 "\n", i, get_vertex_name(W->orderedVertexArray[i]));
+        fprintf(f, "Pos:%u, ", i);
+        print_vertex_data(W->orderedVertexArray[i]);
     }
 }
 
 // Main y funciones auxiliares
 
-int main() {
-/*
+uint32_t xorshift128(uint32_t state[static 4])
+{
+    uint32_t t = state[3];
+    t ^= t << 11;
+    t ^= t >> 8;
+    state[3] = state[2]; state[2] = state[1]; state[1] = state[0];
+    t ^= state[0];
+    t ^= state[0] >> 19;    
+    state[0] = t;
+    return t;
+}
+
+uint32_t xorshift32(uint32_t state[static 1])
+{
+    uint32_t x = state[0];
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    state[0] = x;
+    return x;
+}
+
+int main() { 
+/*  Random stuff
+    int ones = 0;
+    int zeros = 0;
+
+    srand((unsigned)time(NULL));
+    int r;
+    for (int i = 0; i < 1000000000; i++) {
+        r = rand() % 2;
+        if (r == 1)
+            ones++;
+        if (r == 0)
+            zeros++;
+    }
+    printf("Zeros: %d, Ones: %d\n", zeros, ones);*/
+
+/*    u32 *seed = malloc(sizeof(u32));
+    *seed = time(NULL);
+    for (int i = 0; i < 1000000000; i++) {
+        u32 result = xorshift32(seed) % 2;
+        if (result == 1)
+            ones++;
+        if (result == 0)
+            zeros++;
+//        printf("resultado: %"SCNu32"\n", result);
+    }
+    printf("Zeros: %d, Ones: %d\n", zeros, ones);
+    
+    return 0;
+*/
+
     u32 colores = 0;
+//    int isBipartite;
+    int isValid;
     // Do some calculation.
     printf("\nLoading...\n");
     WinterIsHere W = WinterIsComing();
+    //printf ("Calculando si es bipartito...\n\n");
+//    isBipartite = Bipartito(W);
+    printf ("Success!\n\n");
+    printf("Running Greedy...\n\n");
+    colores = Greedy(W);
+    printf("Greedy ended successfuly!\n\n");
+    printf("El coloreo calculado por Greedy es de %"SCNu32 " colores\n\n", colores);
+//    printf ("El resultado de si es bipartito es: %d\n", isBipartite);
+    isValid = isValidColoring(W);
+    printf ("El resultado de si es un coloreo propio es: %d\n", isValid);
+    cleanColors(W);
+    OrdenWelshPowell(W);
+    colores = Greedy(W);
+    printf("Greedy ended successfuly!\n\n");
+    printf("El coloreo calculado por Greedy con orden Welsh-Powell es de %"SCNu32 " colores\n\n", colores);
+    isValid = isValidColoring(W);
+    printf ("El resultado de si es un coloreo propio es: %d\n", isValid);
+    Primavera(W);
+    return 0;
 
+//  TODO: - SETEAR NUMERO DE COLORES USADOS
+//        - VER FUNCIONES DE ORDENAMIENTO FALTANTES
+
+/*
     printf ("Success!\n\n");
     printf("Running Greedy...\n\n");
     colores = Greedy(W);
@@ -335,7 +479,7 @@ int main() {
 //  printColourVertices(W, 1);
     Primavera(W);
     return 0;
-*/
+
     vertex v1 = create_vertex(1, 1, 0, 0);
     vertex v2 = create_vertex(2, 2, 0, 0);
     vertex v3 = create_vertex(3, 3, 0, 0);
@@ -366,5 +510,5 @@ int main() {
     destroy_vertex(v1);
     destroy_vertex(v2);
     destroy_vertex(v3);
-    return 0;
+*/
 }

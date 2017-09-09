@@ -54,13 +54,6 @@ hash_node get_hash_node(hash_map h_map, uint hash_num) {
     return h_map->hash_array[hash_num];
 }
 
-// TODO: Hacer una función hash mas pro
-/*
-uint get_hash(u32 name, uint n_buckets) {
-    return (name % n_buckets);
-}
-*/
-
 /* D. J. Bernstein hash function */
 int djb_hash(const char* cp)
 {
@@ -130,9 +123,9 @@ int search_and_modify_node_values(u32 tag, u32 name, u32 color, u32 grade, hash_
     if (h_node == NULL) {
         return -1;
     } else {
-        set_vertex_tag(tag, h_node->vnode);
-        set_vertex_color(color, h_node->vnode);
-        set_vertex_grade(grade, h_node->vnode);
+        set_vertex_tag(h_node->vnode, tag);
+        set_vertex_color(h_node->vnode, color);
+        set_vertex_grade(h_node->vnode, grade);
         return 0;
     }
 }

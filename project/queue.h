@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "vertex.h"
 
 typedef struct QueueSt *queue;
@@ -14,9 +15,10 @@ struct QueueNodeSt {
     qnode next;
 };
 
-qnode createNode(vertex v);
+qnode createQueueNode(vertex v);
 queue createQueue();
 void enqueue(queue q, vertex v);
 vertex dequeue(queue q);
+bool isEmpty(queue q);
 void destroyQueue(queue q);
 void printQueue(queue q);

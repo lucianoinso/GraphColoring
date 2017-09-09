@@ -2,10 +2,10 @@
 
 vertex create_vertex(u32 tag, u32 name, u32 color, u32 grade) {
     vertex v = calloc(1, sizeof(struct VertexSt));
-    set_vertex_tag(tag, v);
-    set_vertex_name(name, v);
-    set_vertex_color(color, v);
-    set_vertex_grade(grade, v);
+    set_vertex_tag(v, tag);
+    set_vertex_name(v, name);
+    set_vertex_color(v, color);
+    set_vertex_grade(v, grade);
     v->neighList = NULL;
     v->lastNeigh = NULL;
     return v;
@@ -18,19 +18,19 @@ vertex destroy_vertex(vertex v) {
     return v;
 }
 
-void set_vertex_tag(u32 t, vertex v) {
+void set_vertex_tag(vertex v, u32 t) {
     v->tag = t;
 }
 
-void set_vertex_color(u32 c, vertex v) {
+void set_vertex_color(vertex v, u32 c) {
     v->color = c;
 }
 
-void set_vertex_grade(u32 grade, vertex v) {
+void set_vertex_grade(vertex v, u32 grade) {
     v->grade = grade;
 }
 
-void set_vertex_name(u32 name, vertex v) {
+void set_vertex_name(vertex v, u32 name) {
     v->name = name;
 }
 
@@ -79,7 +79,7 @@ neighb_t list_empty(void) {
     return list;
 }
 
-void append_vertex_to_neigh_list(vertex vneigh, vertex v) {
+void append_vertex_to_neigh_list(vertex v, vertex vneigh) {
     neighb_t aux = v->neighList;
     neighb_t new_neighb = NULL;
 

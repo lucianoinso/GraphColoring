@@ -42,3 +42,5 @@ u32 IesimoVecino(WinterIsHere W, u32 x, u32 i);
 // Funciones auxiliares
 WinterIsHere createGraph(u32 vCount, u32 eCount);
 void dumpOrderedVertexArray(WinterIsHere W, FILE *f);
+void cleanColors(WinterIsHere W);
+int isValidColoring(WinterIsHere W);

@@ -25,10 +25,10 @@ struct VertexSt {
 
 vertex create_vertex(u32 tag, u32 name, u32 color, u32 grade);
 vertex destroy_vertex(vertex v);
-void set_vertex_tag(u32 t, vertex v);
-void set_vertex_color(u32 c, vertex v);
-void set_vertex_grade(u32 grade, vertex v);
-void set_vertex_name(u32 name, vertex v);
+void set_vertex_tag(vertex v, u32 t);
+void set_vertex_color(vertex v, u32 c);
+void set_vertex_grade(vertex v, u32 grade);
+void set_vertex_name(vertex v, u32 name);
 void modify_vertex_values(u32 tag, u32 name, u32 color, u32 grade, vertex v);
 u32 get_vertex_tag(vertex v);
 u32 get_vertex_color(vertex v);
@@ -38,7 +38,7 @@ neighb_t get_vertex_neigh_list(vertex v);
 void print_vertex_data(vertex v);
 void print_all_neighs_data(vertex v);
 void printVertexNeighs(vertex v);
-void append_neigh_to_vertex(vertex vneigh, vertex v);
+void append_vertex_to_neigh_list(vertex v, vertex vneigh);
 neighb_t list_destroy(neighb_t list);
 void make_vertex_neighbs(vertex v1, vertex v2);
 
