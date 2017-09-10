@@ -264,14 +264,26 @@ u32 IesimoVerticeEnElOrden(WinterIsHere W, u32 i) {
 int cmpNaturalOrder(const void *p, const void *q){
     vertex v1 = *(vertex const *) p;
     vertex v2 = *(vertex const *) q;
-    return (get_vertex_name(v1) - get_vertex_name(v2));
+    u32 v1name = get_vertex_name(v1);
+    u32 v2name = get_vertex_name(v2);
+
+    return (v1name > v2name) - (v1name < v2name);
+}
+
+int cmpMinToMax(const void *p, const void *q){
+    u32 name1 = *(u32 const *) p;
+    u32 name2 = *(u32 const *) q;
+
+    return (name1 > name2) - (name1 < name2);
 }
 
 int cmpWelshPowell(const void *p, const void *q){
     vertex v1 = *(vertex const *) p;
     vertex v2 = *(vertex const *) q;
+    u32 v1grade = get_vertex_grade(v1);
+    u32 v2grade = get_vertex_grade(v2);
     // Ordenado de mayor a menor
-    return (get_vertex_grade(v2) - get_vertex_grade(v1));
+    return (v2grade > v1grade) - (v2grade < v1grade);
 }
 
 // Funciones de ordenación
@@ -285,11 +297,74 @@ void OrdenWelshPowell(WinterIsHere W) {
     qsort(W->orderedVertexArray, W->NumeroDeVertices, sizeof(W->orderedVertexArray[0]), cmpWelshPowell);
 }
 
-/* IMPLEMENT
-void AleatorizarVertices(WinterIsHere W, u32 x) {
-    printf("todo");
+
+uint32_t xorshift32(uint32_t state[static 1])
+{
+    uint32_t x = state[0];
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    state[0] = x;
+    return x;
 }
 
+static int rand_int(u32 n, u32 *x) {
+    u32 limit = RAND_MAX - RAND_MAX % n;
+    u32 rnd;
+    do {
+        rnd = xorshift32(x);
+    } 
+    while (rnd >= limit);
+    return rnd % n;
+}
+
+
+void AleatorizarVertices(WinterIsHere W, u32 x) {
+    u32 i, j, tmp;
+    u32 n = W->NumeroDeVertices;
+    u32 *random_order_array = malloc(n*sizeof(u32));
+
+    for (i = 0; i < n; i++)
+        random_order_array[i] = get_vertex_name(W->orderedVertexArray[i]);
+
+    qsort(random_order_array, n, sizeof(random_order_array[0]), cmpMinToMax);
+//    printf("First: %"SCNu32", second:%"SCNu32", last: %"SCNu32".\n", random_order_array[0], random_order_array[1], random_order_array[n-1]);
+//    srand(x);
+//    printf("Rand max is max: %"SCNu32"\n", rand_max_u32);
+    
+    for (i = n - 1; i > 0; i--) {
+        j = rand_int(n, &x) % (i + 1);
+        tmp = random_order_array[j];
+        random_order_array[j] = random_order_array[i];
+        random_order_array[i] = tmp;
+   }
+
+/*    for (i = 0; i < n - 1; i++) {
+      u32 j = i + rand() / (rand_max_u32 / (n - i) + 1);
+      u32 t = random_order_array[j];
+      random_order_array[j] = random_order_array[i];
+      random_order_array[i] = t;
+    }
+*/
+    //    printf("[");
+//    for (i = 0; i < n; i++){
+//        printf("%"SCNu32"", random_order_array[i]);
+//        if (i != (n - 1))
+//            printf(":");
+//    }
+//    printf("]\n\n");
+
+
+//    for (i = 0; i < n ; i++)
+//        aux_array[i] = ;
+
+    for (i = 0; i < n ; i++)
+        W->orderedVertexArray[i] = search_node(random_order_array[i], W->vertex_hashmap);
+
+    free(random_order_array);
+}
+
+/* IMPLEMENT
 void ReordenManteniendoBloqueColores(WinterIsHere W, u32 x) {
     printf("todo");
 }
@@ -377,47 +452,80 @@ uint32_t xorshift128(uint32_t state[static 4])
     return t;
 }
 
-uint32_t xorshift32(uint32_t state[static 1])
-{
-    uint32_t x = state[0];
-    x ^= x << 13;
-    x ^= x >> 17;
-    x ^= x << 5;
-    state[0] = x;
-    return x;
-}
+
 
 int main() { 
-/*  Random stuff
+
+/*
     int ones = 0;
     int zeros = 0;
 
     srand((unsigned)time(NULL));
     int r;
-    for (int i = 0; i < 1000000000; i++) {
+    for (int i = 0; i < 1000; i++) {
         r = rand() % 2;
         if (r == 1)
             ones++;
         if (r == 0)
             zeros++;
     }
-    printf("Zeros: %d, Ones: %d\n", zeros, ones);*/
-
-/*    u32 *seed = malloc(sizeof(u32));
-    *seed = time(NULL);
-    for (int i = 0; i < 1000000000; i++) {
-        u32 result = xorshift32(seed) % 2;
-        if (result == 1)
-            ones++;
-        if (result == 0)
-            zeros++;
-//        printf("resultado: %"SCNu32"\n", result);
-    }
     printf("Zeros: %d, Ones: %d\n", zeros, ones);
+
+    u32 *seed = malloc(sizeof(u32));
+    *seed = 24;
+    for (int i = 0; i < 10; i++) {
+        u32 result = xorshift32(seed) % 20;
+//        if (result == 1)
+//            ones++;
+//        if (result == 0)
+//            zeros++;
+        printf("resultado: %"SCNu32"\n", result);
+    }
+//    printf("Zeros: %d, Ones: %d\n", zeros, ones);
     
     return 0;
 */
+    printf("Loading...\n");
+    WinterIsHere W = WinterIsComing();
+    printf("Loading done.\n");
+    u32 x = 10;
+    printf("Dump with seed %"SCNu32" :\n", x);
+    AleatorizarVertices(W, x);
+    printf("value of [0]:%"SCNu32"\n", get_vertex_name(W->orderedVertexArray[0]));
+//    dumpOrderedVertexArray(W, stdout);
+    
+    x = 11;
+    printf("Dump with seed %"SCNu32" :\n", x);
+    AleatorizarVertices(W, x);
+    printf("value of [0]:%"SCNu32"\n", get_vertex_name(W->orderedVertexArray[0]));
+//    dumpOrderedVertexArray(W, stdout);
+    
+    x = 12;
+    printf("Dump with seed %"SCNu32" :\n", x);
+    AleatorizarVertices(W, x);
+    printf("value of [0]:%"SCNu32"\n", get_vertex_name(W->orderedVertexArray[0]));
 
+    x = 10;
+    printf("Dump with seed %"SCNu32" :\n", x);
+    AleatorizarVertices(W, x);
+    printf("value of [0]:%"SCNu32"\n", get_vertex_name(W->orderedVertexArray[0]));
+//    dumpOrderedVertexArray(W, stdout);
+
+    x = 11;
+    printf("Dump with seed %"SCNu32" :\n", x);
+    AleatorizarVertices(W, x);
+    printf("value of [0]:%"SCNu32"\n", get_vertex_name(W->orderedVertexArray[0]));
+
+    x = 12;
+    printf("Dump with seed %"SCNu32" :\n", x);
+    AleatorizarVertices(W, x);
+    printf("value of [0]:%"SCNu32"\n", get_vertex_name(W->orderedVertexArray[0]));
+//    dumpOrderedVertexArray(W, stdout);
+
+
+//    dumpOrderedVertexArray(W, stdout);
+    return 0;
+/*
     u32 colores = 0;
 //    int isBipartite;
     int isValid;
@@ -447,7 +555,7 @@ int main() {
 //  TODO: - SETEAR NUMERO DE COLORES USADOS
 //        - VER FUNCIONES DE ORDENAMIENTO FALTANTES
 
-/*
+
     printf ("Success!\n\n");
     printf("Running Greedy...\n\n");
     colores = Greedy(W);
