@@ -308,8 +308,9 @@ uint32_t xorshift32(uint32_t state[static 1])
     return x;
 }
 
-static int rand_int(u32 n, u32 *x) {
-    u32 limit = RAND_MAX - RAND_MAX % n;
+static u32 rand_uint(u32 n, u32 *x) {
+    u32 rand_uint_max = 0xFFFFFFFF;
+    u32 limit = rand_uint_max - rand_uint_max % n;
     u32 rnd;
     do {
         rnd = xorshift32(x);
@@ -333,7 +334,7 @@ void AleatorizarVertices(WinterIsHere W, u32 x) {
 //    printf("Rand max is max: %"SCNu32"\n", rand_max_u32);
     
     for (i = n - 1; i > 0; i--) {
-        j = rand_int(n, &x) % (i + 1);
+        j = rand_uint(n, &x) % (i + 1);
         tmp = random_order_array[j];
         random_order_array[j] = random_order_array[i];
         random_order_array[i] = tmp;
