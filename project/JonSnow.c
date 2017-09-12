@@ -227,11 +227,12 @@ int isValidColoring(WinterIsHere W){
     return isValid;
 }
 
-// Funciones para extraer información de datos del grafo
 void cleanColors(WinterIsHere W) {
     for (uint i = 0; i < W->NumeroDeVertices; i++)
         (W->orderedVertexArray[i])->color = 0;
 }
+
+// Funciones para extraer información de datos del grafo
 
 u32 NumeroDeVertices(WinterIsHere W) {
     return W->NumeroDeVertices;
@@ -251,7 +252,11 @@ u32 NumeroVerticesDeColor(WinterIsHere W, u32 i) {
     return count;
 }
 
-/* Devuelve la cantidad de colores usados en el coloreo que tiene en su momento W */
+/* 
+    Devuelve la cantidad de colores usados en el coloreo que tiene en su
+    momento W
+*/
+
 u32 NumeroDeColores(WinterIsHere W) {
     return W->NumeroDeColoresUsados;
 }
@@ -287,14 +292,21 @@ int cmpWelshPowell(const void *p, const void *q){
 }
 
 // Funciones de ordenación
-// Orden segun el nombre del vertice
+
+/*
+    Orden segun el nombre del vertice
+*/
 void OrdenNatural(WinterIsHere W) {
-    qsort(W->orderedVertexArray, W->NumeroDeVertices, sizeof(W->orderedVertexArray[0]), cmpNaturalOrder);
+    qsort(W->orderedVertexArray, W->NumeroDeVertices,
+          sizeof(W->orderedVertexArray[0]), cmpNaturalOrder);
 }
 
-// Mayor a menor grado
+/*
+    Mayor a menor segun el grado
+*/
 void OrdenWelshPowell(WinterIsHere W) {
-    qsort(W->orderedVertexArray, W->NumeroDeVertices, sizeof(W->orderedVertexArray[0]), cmpWelshPowell);
+    qsort(W->orderedVertexArray, W->NumeroDeVertices,
+          sizeof(W->orderedVertexArray[0]), cmpWelshPowell);
 }
 
 
@@ -307,6 +319,7 @@ uint32_t xorshift32(uint32_t state[static 1])
     state[0] = x;
     return x;
 }
+
 
 static u32 rand_uint(u32 n, u32 *x) {
     u32 rand_uint_max = 0xFFFFFFFF;
@@ -329,38 +342,19 @@ void AleatorizarVertices(WinterIsHere W, u32 x) {
         random_order_array[i] = get_vertex_name(W->orderedVertexArray[i]);
 
     qsort(random_order_array, n, sizeof(random_order_array[0]), cmpMinToMax);
-//    printf("First: %"SCNu32", second:%"SCNu32", last: %"SCNu32".\n", random_order_array[0], random_order_array[1], random_order_array[n-1]);
-//    srand(x);
-//    printf("Rand max is max: %"SCNu32"\n", rand_max_u32);
     
     for (i = n - 1; i > 0; i--) {
+        // Le pasamos la cantidad de elementos del arreglo 'n' y la variable
+        // 'x' como seed a rand_uint()
         j = rand_uint(n, &x) % (i + 1);
         tmp = random_order_array[j];
         random_order_array[j] = random_order_array[i];
         random_order_array[i] = tmp;
    }
 
-/*    for (i = 0; i < n - 1; i++) {
-      u32 j = i + rand() / (rand_max_u32 / (n - i) + 1);
-      u32 t = random_order_array[j];
-      random_order_array[j] = random_order_array[i];
-      random_order_array[i] = t;
-    }
-*/
-    //    printf("[");
-//    for (i = 0; i < n; i++){
-//        printf("%"SCNu32"", random_order_array[i]);
-//        if (i != (n - 1))
-//            printf(":");
-//    }
-//    printf("]\n\n");
-
-
-//    for (i = 0; i < n ; i++)
-//        aux_array[i] = ;
-
     for (i = 0; i < n ; i++)
-        W->orderedVertexArray[i] = search_node(random_order_array[i], W->vertex_hashmap);
+        W->orderedVertexArray[i] = search_node(random_order_array[i],
+                                               W->vertex_hashmap);
 
     free(random_order_array);
 }
@@ -525,6 +519,7 @@ int main() {
 
 
 //    dumpOrderedVertexArray(W, stdout);
+    Primavera(W);
     return 0;
 /*
     u32 colores = 0;
