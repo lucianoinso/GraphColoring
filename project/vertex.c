@@ -140,7 +140,7 @@ void print_vertex_data(vertex v) {
     printf("Tag: %"SCNu32" Name: %"SCNu32" Color: %"SCNu32" Grade: %"SCNu32" \n",
             get_vertex_tag(v), get_vertex_name(v), get_vertex_color(v),
             get_vertex_grade(v));
-    printVertexNeighs(v);
+    //printVertexNeighs(v);
 }
 
 
