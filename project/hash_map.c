@@ -158,10 +158,11 @@ void append_node_to_hash_map(hash_node h_node, hash_map h_map) {
 }
 
 hash_node destroy_hash_node(hash_node h_node) {
-    assert(h_node != NULL);
-    destroy_vertex(h_node->vnode);
-    free(h_node);
-    h_node = NULL;
+    if(h_node != NULL) {
+        destroy_vertex(h_node->vnode);
+        free(h_node);
+        h_node = NULL;
+    }
     return h_node;
 }
 
@@ -169,7 +170,6 @@ hash_map destroy_hash_map(hash_map h_map) {
     unsigned int i;
     hash_node h_node;
     hash_node aux;
-
     for (i = 0; i < h_map->n_buckets; i++) {
         h_node = get_hash_node(h_map, i);
 

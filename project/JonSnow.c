@@ -1,5 +1,5 @@
 #include "JonSnow.h"
-#include <time.h>
+
 #define MAX_LINE 4096
 
 struct WinterSt {
@@ -9,26 +9,6 @@ struct WinterSt {
     vertex *orderedVertexArray;
     hash_map vertex_hashmap;
 };
-
-/*
-    Estructura usada para ordenar los vertices segun la cantidad
-    de vertices que posee cada color
-*/
-typedef struct ColAmountSt { 
-        u32 color;
-        u32 amount;
-} *vertexColAmount;
-
-
-/* void ImprimirTodosLosVecinos(WinterIsHere W) {
-    for (int i = 0; i < W->NumeroDeVertices; i++)
-    {
-        printf("vertex: %d neighbours are: \n", W->vertexArray[i]->name);
-        printVertexNeighs(W->vertexArray[i]);
-        printf("\n");
-    }
-}2
-*/
 
 
 /*  TODO:
@@ -66,10 +46,10 @@ WinterIsHere WinterIsComing() {
     vertex v1 = NULL;
     vertex v2 = NULL;
 
-    uint i = 0;
-    uint j = 0;
+    u32 i = 0;
+    u32 j = 0;
 
-    while(j < W->NumeroDeLados) {
+    while(j < NumeroDeLados(W)) {
         if(fgets(input, MAX_LINE, stdin) == NULL) {
             return NULL;
         }
@@ -110,7 +90,7 @@ WinterIsHere WinterIsComing() {
         make_vertex_neighbs(v1, v2); // Agregamos los vertices a la lista de vecinos del otro
         j++;
     }
-
+    Greedy(W);
     return W;
 }
 
@@ -130,18 +110,18 @@ int Primavera(WinterIsHere W) {
 // Funciones de Coloreo
 
 u32 Greedy(WinterIsHere W) {
-    uint colorMaximo = 1;
-    uint colorAux = 0;
-    uint *arrayColores = NULL;
+    u32 colorMaximo = 1;
+    u32 colorAux = 0;
+    u32 *arrayColores = NULL;
     vertex vertexAux; 
-    for (uint i = 0 ; i < NumeroDeVertices(W); i++) {
+    for (u32 i = 0 ; i < NumeroDeVertices(W); i++) {
         vertexAux = W->orderedVertexArray[i];  //  Iteramos sobre el arreglo de vertices en el orden en el que estan
         if(get_vertex_grade(vertexAux) >= colorMaximo) {
             arrayColores = calloc(colorMaximo, sizeof(u32));
         } else {
             arrayColores = calloc(get_vertex_grade(vertexAux), sizeof(u32));
         }
-        neighb_t neighbHelp  = vertexAux->neighList;
+        neighb_t neighbHelp = get_vertex_neigh_list(vertexAux);
         while(neighbHelp != NULL) {
             if ((get_vertex_color(neighbHelp->vertex_pt) <= get_vertex_grade(vertexAux))
                 && (get_vertex_color(neighbHelp->vertex_pt) != 0)){
@@ -154,7 +134,7 @@ u32 Greedy(WinterIsHere W) {
             colorAux++;
         }
         colorAux++;
-       // search_and_modify_node_values(vertexAux->tag, vertexAux->name, colorAux, vertexAux->grade,W->vertex_hashmap);
+
         set_vertex_color(vertexAux, colorAux);
         if (colorMaximo < colorAux)
             colorMaximo = colorAux;
@@ -173,14 +153,14 @@ int Bipartito(WinterIsHere W) {
     cleanColors(W);
     vertex v, w;
     neighb_t vertex_neigh_list;
-    uint j = 0;
+    u32 j = 0;
     queue q = createQueue();
     // Seteamos isBipartite en verdadero hasta que suceda lo contrario
     int isBipartite = 1;
-    while (j < W->NumeroDeVertices && isBipartite){
+    while (j < NumeroDeVertices(W) && isBipartite){
         // Obtenemos el primer vertice que no este coloreado le ponemos 
         // color 1 y lo agregamos a la cola 'q'
-        for (uint i = 0; i < W->NumeroDeVertices; i++){
+        for (u32 i = 0; i < NumeroDeVertices(W); i++){
             if(get_vertex_color(W->orderedVertexArray[i]) == 0){
                 v = W->orderedVertexArray[i];
                 set_vertex_color(v, 1);
@@ -208,10 +188,11 @@ int Bipartito(WinterIsHere W) {
                     set_vertex_color(w, 3 - get_vertex_color(v));
                 } else if (get_vertex_color(w) == get_vertex_color(v)) {
                     // Si encontramos en la cola un vertice con el mismo color que
-                    // el vertice que lo agrego estamos ante un grafo que no es bipartito
+                    // el vertice que lo agregó estamos ante un grafo que no es bipartito
                     // entonces seteamos isBipartite en 0 para que corte los ciclos y
                     // devuelva 0 como resultado de la funcion
                     isBipartite = 0;
+                    cleanColors(W);
                     break;
                 }
                 // Procedemos al siguiente vertice dentro de la lista de vecinos
@@ -230,7 +211,7 @@ int isValidColoring(WinterIsHere W){
     vertex v, w;
     neighb_t vertex_neigh_list;
     int isValid = 1;
-    for (uint i = 0; i < W->NumeroDeVertices && isValid; i++) {
+    for (u32 i = 0; i < NumeroDeVertices(W) && isValid; i++) {
         v = W->orderedVertexArray[i];
         vertex_neigh_list = get_vertex_neigh_list(v);
         while (vertex_neigh_list != NULL){
@@ -245,9 +226,10 @@ int isValidColoring(WinterIsHere W){
     return isValid;
 }
 
+
 void cleanColors(WinterIsHere W) {
-    for (uint i = 0; i < W->NumeroDeVertices; i++)
-        (W->orderedVertexArray[i])->color = 0;
+    for (u32 i = 0; i < NumeroDeVertices(W); i++)
+        set_vertex_color(W->orderedVertexArray[i], 0);
 }
 
 // Funciones para extraer información de datos del grafo
@@ -261,8 +243,8 @@ u32 NumeroDeLados(WinterIsHere W) {
 }
 
 u32 NumeroVerticesDeColor(WinterIsHere W, u32 i) {
-    int count = 0;
-    for (uint j = 0; j < W->NumeroDeVertices; j++) {
+    u32 count = 0;
+    for (u32 j = 0; j < NumeroDeVertices(W); j++) {
         if (get_vertex_color(W->orderedVertexArray[j]) == i) {
             count++;
         }
@@ -280,40 +262,20 @@ u32 NumeroDeColores(WinterIsHere W) {
 }
 
 u32 IesimoVerticeEnElOrden(WinterIsHere W, u32 i) {
-    return get_vertex_tag(W->orderedVertexArray[i]);
+    if (i < NumeroDeVertices(W))
+        return get_vertex_tag(W->orderedVertexArray[i]);
+    else
+        return -1;
 }
 
-
-int cmpNaturalOrder(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 v1name = get_vertex_name(v1);
-    u32 v2name = get_vertex_name(v2);
-    return (v1name > v2name) - (v1name < v2name);
-}
-
-int cmpMinToMax(const void *p, const void *q){
-    u32 name1 = *(u32 const *) p;
-    u32 name2 = *(u32 const *) q;
-    return (name1 > name2) - (name1 < name2);
-}
-
-int cmpWelshPowell(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 v1grade = get_vertex_grade(v1);
-    u32 v2grade = get_vertex_grade(v2);
-    // Ordenado depende el grado de mayor a menor
-    return (v2grade > v1grade) - (v2grade < v1grade);
-}
 
 // Funciones de ordenación
 
 /*
-    Orden segun el nombre del vertice
+    Ordena en orden creciente segun el nombre del vertice 
 */
 void OrdenNatural(WinterIsHere W) {
-    qsort(W->orderedVertexArray, W->NumeroDeVertices,
+    qsort(W->orderedVertexArray, NumeroDeVertices(W),
           sizeof(W->orderedVertexArray[0]), cmpNaturalOrder);
 }
 
@@ -321,7 +283,7 @@ void OrdenNatural(WinterIsHere W) {
     Mayor a menor segun el grado
 */
 void OrdenWelshPowell(WinterIsHere W) {
-    qsort(W->orderedVertexArray, W->NumeroDeVertices,
+    qsort(W->orderedVertexArray, NumeroDeVertices(W),
           sizeof(W->orderedVertexArray[0]), cmpWelshPowell);
 }
 
@@ -329,16 +291,15 @@ void OrdenWelshPowell(WinterIsHere W) {
     Funcion que devuelve un numero aleatorio
     (fijarse lo del 0)
 */
-uint32_t xorshift32(uint32_t state[static 1])
+u32 xorshift32(u32 state[static 1])
 {
-    uint32_t x = state[0];
+    u32 x = state[0];
     x ^= x << 13;
     x ^= x >> 17;
     x ^= x << 5;
     state[0] = x;
     return x;
 }
-
 
 static u32 rand_uint(u32 n, u32 *x) {
     u32 rand_uint_max = 0xFFFFFFFF;
@@ -353,7 +314,7 @@ static u32 rand_uint(u32 n, u32 *x) {
 
 void AleatorizarVertices(WinterIsHere W, u32 x) {
     u32 i, j, tmp;
-    u32 n = W->NumeroDeVertices;
+    u32 n = NumeroDeVertices(W);
     u32 *random_order_array = malloc(n*sizeof(u32));
 
     for (i = 0; i < n; i++)
@@ -375,46 +336,6 @@ void AleatorizarVertices(WinterIsHere W, u32 x) {
                                                W->vertex_hashmap);
 
     free(random_order_array);
-}
-
-
-/*
-    Si W esta coloreado con r colores y VC1 son los vertices coloreados
-    con 1, VC2 los coloreados con 2, etc, entonces esta funcion ordena
-    los vertices poniendo primero los vertices de VCj1, luego los de
-    VCj2, etc, donde j1,j2,...,jr se determinan a partir de x de la
-    siguiente manera:
-
-    x = 0 -> j1 = r, j2 = 1, j3 = 2, ... , jr = r - 1
-    x = 1 -> j1 = r, j2 = r - 1, ... , jr-1 = 2, jr = 1
-    x = 2 -> |VCj1| <= |VCj2| <= ... <= |VCjr|
-    x = 3 -> |VCj1| >= |VCj2| >= ... >= |VCjr|
-    x > 3 -> se usa alguna función de pseudoaleatoriedad que dependa
-    deterministicamente de x para generar un orden aleatorio de los
-    numeros {1,2,...,j}, obteniendo un orden j1,j2,...,jr.
-*/
-
-
-/*
-int cmpMinToMaxColors(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 v1color = get_vertex_color(v1);
-    u32 v2color = get_vertex_color(v2);
-    return (v1color > v2color) - (v1color < v2color);
-}*/
-
-int cmpMaxToMinWithColors(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 v1color = get_vertex_color(v1);
-    u32 v2color = get_vertex_color(v2);
-    return (v2color > v1color) - (v2color < v1color);
-}
-
-void waitFor (unsigned int secs) {
-    unsigned int retTime = time(0) + secs;   // Get finishing time.
-    while (time(0) < retTime);               // Loop until it arrives.
 }
 
 void orderByRandomBlocksOfColor(WinterIsHere W, u32 x){
@@ -466,9 +387,9 @@ void orderByRandomBlocksOfColor(WinterIsHere W, u32 x){
         (i != ncolores) ? printf(",") : printf(".\n");
     }
 
-    vertex *orderedByColourVertexArray = malloc(W->NumeroDeVertices * sizeof(struct VertexSt));
+    vertex *orderedByColourVertexArray = malloc(NumeroDeVertices(W) * sizeof(struct VertexSt));
     u32 auxcol;
-    for (u32 i = 0; i < W->NumeroDeVertices; i++){
+    for (u32 i = 0; i < NumeroDeVertices(W); i++){
         // Obtenemos el color del vertice que estamos por acomodar, nos fijamos en el arreglo
         // de posiciones donde deberia ir ese vertice segun ese color e incrementamos la posicion
         // en el arreglo de posiciones por color para que ocupe la siguiente posición
@@ -517,9 +438,9 @@ void orderByColorMaxThenMinToMax(WinterIsHere W){
         // del color anterior
     }
 
-    vertex *orderedByColourVertexArray = malloc(W->NumeroDeVertices * sizeof(struct VertexSt));
+    vertex *orderedByColourVertexArray = malloc(NumeroDeVertices(W) * sizeof(struct VertexSt));
     u32 auxcol;
-    for (u32 i = 0; i < W->NumeroDeVertices; i++){
+    for (u32 i = 0; i < NumeroDeVertices(W); i++){
         // Obtenemos el color del vertice que estamos por acomodar, nos fijamos en el arreglo
         // de posiciones donde deberia ir ese vertice segun ese color e incrementamos la posicion
         // en el arreglo de posiciones por color para que ocupe la siguiente posición
@@ -532,7 +453,7 @@ void orderByColorMaxThenMinToMax(WinterIsHere W){
     W->orderedVertexArray = orderedByColourVertexArray;
 
     /*
-    for (u32 i = 0; i < W->NumeroDeVertices; i++)
+    for (u32 i = 0; i < NumeroDeVertices(W); i++)
         orderedByColourVertexArray[i] = W->orderedVertexArray[i];
     
     for (u32 i = 0; i < 300; i++)
@@ -552,26 +473,9 @@ void orderByColorMaxThenMinToMax(WinterIsHere W){
 }
 
 void orderByColorMaxToMin(WinterIsHere W){
-    qsort(W->orderedVertexArray, W->NumeroDeVertices,
-          sizeof(W->orderedVertexArray[0]), cmpMaxToMinWithColors);
+    qsort(W->orderedVertexArray, NumeroDeVertices(W),
+          sizeof(W->orderedVertexArray[0]), cmpMaxToMinByColor);
 }
-
-int cmpMinToMaxColAmount(const void *p, const void *q){
-    vertexColAmount ca1 = *(vertexColAmount const *) p;
-    vertexColAmount ca2 = *(vertexColAmount const *) q;
-    u32 c1ColAmount = ca1->amount;
-    u32 c2ColAmount = ca2->amount;
-    return (c1ColAmount > c2ColAmount) - (c1ColAmount < c2ColAmount);
-}
-
-int cmpMaxToMinColAmount(const void *p, const void *q){
-    vertexColAmount ca1 = *(vertexColAmount const *) p;
-    vertexColAmount ca2 = *(vertexColAmount const *) q;
-    u32 c1ColAmount = ca1->amount;
-    u32 c2ColAmount = ca2->amount;
-    return (c2ColAmount > c1ColAmount) - (c2ColAmount < c1ColAmount);
-}
-
 
 /*
     Ordena el arreglo segun la cantidad de colores en el orden
@@ -586,7 +490,7 @@ int cmpMaxToMinColAmount(const void *p, const void *q){
 */
 void orderByAmountOfColor(WinterIsHere W, bool order){
     u32 ncolores = NumeroDeColores(W);
-    vertexColAmount *vertexColAmountArray = malloc((ncolores + 1) * sizeof(struct ColAmountSt));
+    colAmount *colAmountArray = malloc((ncolores + 1) * sizeof(struct ColAmountSt));
     u32 *color_amount = calloc((ncolores + 1),sizeof(u32));
 
     // Recorremos el arreglo para contar los colores
@@ -594,37 +498,37 @@ void orderByAmountOfColor(WinterIsHere W, bool order){
         color_amount[get_vertex_color(W->orderedVertexArray[i])]++;
 
     for (u32 i = 0; i < (ncolores + 1); i++) {
-        vertexColAmountArray[i] = malloc(sizeof(struct ColAmountSt));
-        vertexColAmountArray[i]->color = i;
-        vertexColAmountArray[i]->amount = color_amount[i];
+        colAmountArray[i] = malloc(sizeof(struct ColAmountSt));
+        colAmountArray[i]->color = i;
+        colAmountArray[i]->amount = color_amount[i];
     }
 
-    if(order == 0)
-        qsort(vertexColAmountArray, ncolores + 1,
-              sizeof(vertexColAmountArray[0]), cmpMinToMaxColAmount);
-    else if(order == 1)
-        qsort(vertexColAmountArray, ncolores + 1,
-              sizeof(vertexColAmountArray[0]), cmpMaxToMinColAmount);
+    if(order == 0)  // Menor a mayor
+        qsort(colAmountArray, ncolores + 1,
+              sizeof(colAmountArray[0]), cmpMinToMaxColAmount);
+    else if(order == 1)  // Mayor a menor
+        qsort(colAmountArray, ncolores + 1,
+              sizeof(colAmountArray[0]), cmpMaxToMinColAmount);
 
     for (u32 i = 0; i < ncolores + 1; i++){
         printf("Color:%"SCNu32", amount:%"SCNu32"\n",
-               vertexColAmountArray[i]->color,
-               vertexColAmountArray[i]->amount);
+               colAmountArray[i]->color,
+               colAmountArray[i]->amount);
     }
     printf("\n");
 
     u32 *color_position = malloc((ncolores + 1) * sizeof(u32));
-    color_position[vertexColAmountArray[0]->color] = 0;
+    color_position[colAmountArray[0]->color] = 0;
     for (u32 i = 1; i < ncolores + 1; i++){
-        u32 prevCol = vertexColAmountArray[i-1]->color;
-        u32 currentCol = vertexColAmountArray[i]->color;
+        u32 prevCol = colAmountArray[i-1]->color;
+        u32 currentCol = colAmountArray[i]->color;
         color_position[currentCol] = color_position[prevCol] +
                                      color_amount[prevCol];
     }
 
-    vertex *orderedByColourVertexArray = malloc(W->NumeroDeVertices * sizeof(struct VertexSt));
+    vertex *orderedByColourVertexArray = malloc(NumeroDeVertices(W) * sizeof(struct VertexSt));
     u32 auxcol;
-    for (u32 i = 0; i < W->NumeroDeVertices; i++){
+    for (u32 i = 0; i < NumeroDeVertices(W); i++){
         // Obtenemos el color del vertice que estamos por acomodar, nos fijamos en el arreglo
         // de posiciones donde deberia ir ese vertice segun ese color e incrementamos la posicion
         // en el arreglo de posiciones por color para que ocupe la siguiente posición
@@ -640,9 +544,9 @@ void orderByAmountOfColor(WinterIsHere W, bool order){
     free(color_position);
     free(color_amount);
     for (u32 i = 0; i < (ncolores + 1); i++) {
-        free(vertexColAmountArray[i]);
+        free(colAmountArray[i]);
     }
-    free(vertexColAmountArray);
+    free(colAmountArray);
 }
 
 
@@ -670,66 +574,75 @@ void ReordenManteniendoBloqueColores(WinterIsHere W, u32 x) {
 // Funciones de los vertices
 
 u32 NombreDelVertice(WinterIsHere W, u32 x) {
-    return get_vertex_name(W->orderedVertexArray[x]);
+    u32 vname = 0;
+    for (u32 i = 0; i < NumeroDeVertices(W); i++){
+        if (get_vertex_tag(W->orderedVertexArray[i]) == x){
+            vname = get_vertex_name(W->orderedVertexArray[i]);
+            break;
+        }
+    }
+    return vname;
 }
 
 u32 ColorDelVertice(WinterIsHere W, u32 x) {
-    return get_vertex_color(W->orderedVertexArray[x]);
+    u32 vcolor = 0;
+    for (u32 i = 0; i < NumeroDeVertices(W); i++){
+        if (get_vertex_tag(W->orderedVertexArray[i]) == x){
+            vcolor = get_vertex_color(W->orderedVertexArray[i]);
+            break;
+        }
+    }
+    return vcolor;
 }
 
 u32 GradoDelVertice(WinterIsHere W, u32 x) {
-    return get_vertex_grade(W->orderedVertexArray[x]);
+    u32 vgrade = 0;
+    for (u32 i = 0; i < NumeroDeVertices(W); i++){
+        if (get_vertex_tag(W->orderedVertexArray[i]) == x){
+            vgrade = get_vertex_grade(W->orderedVertexArray[i]);
+            break;
+        }
+    }
+    return vgrade;
 }
 
 u32 IesimoVecino(WinterIsHere W, u32 x, u32 i) {
-    vertex v = W->orderedVertexArray[x];
-    neighb_t auxList = get_vertex_neigh_list(v);
-    uint j = 0;
+    vertex v = NULL;
     u32 tag = 0;
-    while(auxList != NULL && j != i) {
-        auxList = auxList->next;
-        j++;
+    for (u32 i = 0; i < NumeroDeVertices(W); i++){
+        if (get_vertex_tag(W->orderedVertexArray[i]) == x){
+            v = W->orderedVertexArray[i];
+            break;
+        }
     }
-    tag = get_vertex_tag(auxList->vertex_pt);
+    if (v != NULL){
+        neighb_t auxList = get_vertex_neigh_list(v);
+        u32 j = 0;
+
+        while(auxList != NULL && j != i) {
+            auxList = auxList->next;
+            j++;
+        }
+        if(auxList != NULL){
+            tag = get_vertex_tag(auxList->vertex_pt);
+        }
+    }
     return tag;
 }
 
-/*
-u32 printColourVertices(WinterIsHere W, u32 i) {
-    printf("Vertices de Color %d: ", i);
-
-    int count = 0;
-    u32 amount = NumeroVerticesDeColor(W, i);
-    
-    if(amount == 0) {
-        printf("No hay vertices de color %d\n", i);
-    } else {
-        for (int j = 0; j < W->NumeroDeVertices; j++) {
-            if (W->vertexArray[j]->colour == i) {
-                if (count < amount - 1)
-                    printf("%d,", W->vertexArray[j]->name);
-                else
-                    printf("%d.\n", W->vertexArray[j]->name);
-                count++;
-            }
-        }
-    }
-    return amount;
-}
-*/
 
 WinterIsHere createGraph(u32 vCount, u32 eCount) {
     WinterIsHere W = calloc(1, sizeof(struct WinterSt));
     W->NumeroDeLados = eCount;
     W->NumeroDeVertices = vCount;
-    W->vertex_hashmap = create_hash_map(W->NumeroDeVertices);
-    W->orderedVertexArray = malloc(W->NumeroDeVertices * sizeof(struct VertexSt));
+    W->vertex_hashmap = create_hash_map(NumeroDeVertices(W));
+    W->orderedVertexArray = malloc(NumeroDeVertices(W) * sizeof(struct VertexSt));
 
     return W;
 }
 
 void dumpOrderedVertexArray(WinterIsHere W, FILE *f) {
-    for (uint i = 0; i < W->NumeroDeVertices; i++) {
+    for (u32 i = 0; i < NumeroDeVertices(W); i++) {
         fprintf(f, "Pos:%u, ", i);
         print_vertex_data(W->orderedVertexArray[i]);
     }
@@ -737,9 +650,9 @@ void dumpOrderedVertexArray(WinterIsHere W, FILE *f) {
 
 // Main y funciones auxiliares
 
-uint32_t xorshift128(uint32_t state[static 4])
+u32 xorshift128(u32 state[static 4])
 {
-    uint32_t t = state[3];
+    u32 t = state[3];
     t ^= t << 11;
     t ^= t >> 8;
     state[3] = state[2]; state[2] = state[1]; state[1] = state[0];
@@ -753,14 +666,31 @@ int main() {
     printf("Loading...\n");
     WinterIsHere W = WinterIsComing();
     printf("Loading done.\n");
-    u32 colores = Greedy(W);
-    ReordenManteniendoBloqueColores(W, 2);
+
+    /*for (u32 i = 0; i < NumeroDeVertices(W); i++)
+        printf("%"SCNu32",", GradoDelVertice(W,IesimoVerticeEnElOrden(W,i)));
+    printf("\n\n");*/
+    OrdenWelshPowell(W);
+
+/*    for (u32 i = 0; i < NumeroDeVertices(W); i++)
+        printf("%"SCNu32",", GradoDelVertice(W,IesimoVerticeEnElOrden(W,i)));
+    printf("\n\n");*/
+    dumpOrderedVertexArray(W, stdout);
+    u32 tag = 1;
+    u32 neig = 49;
+    printf("\n\nTag: %"SCNu32", Vecino %"SCNu32" es %"SCNu32"\n", tag, neig, IesimoVecino(W, tag, neig));
+
+//    u32 colores = Greedy(W);
+/*    ReordenManteniendoBloqueColores(W, 2);
     dumpOrderedVertexArray(W, stdout);
     printf("\n");
     ReordenManteniendoBloqueColores(W, 3);
     dumpOrderedVertexArray(W, stdout);
-    printf("Coloreo: %"SCNu32"\n", colores);
-
+    printf("\n");
+    ReordenManteniendoBloqueColores(W, 1);
+    dumpOrderedVertexArray(W, stdout);
+    printf("Coloreo: %"SCNu32"\n", NumeroDeColores(W));
+*/
     Primavera(W);
     return 0;
 }
