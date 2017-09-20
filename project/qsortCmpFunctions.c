@@ -22,6 +22,20 @@ int cmpWelshPowell(const void *p, const void *q){
     u32 v1grade = get_vertex_grade(v1);
     u32 v2grade = get_vertex_grade(v2);
     // Ordenamiento segun el grado en orden decreciente
+    
+    if(v1grade < v2grade) {
+        return 1;
+    } else if(v1grade > v2grade) {
+        return -1;
+    } else {  // v1grade == v2grade
+        u32 v1name = get_vertex_name(v1);
+        u32 v2name = get_vertex_name(v2);
+        if (v1name < v2name) return -1;
+        else if (v1name > v2name) return 1;
+        else return 0;  // (v1name == v2name)
+    }
+    return 0;
+
     return (v2grade > v1grade) - (v2grade < v1grade);
 }
 
@@ -90,5 +104,3 @@ int cmpMinToMax(const void *p, const void *q){
     u32 name2 = *(u32 const *) q;
     return (name1 > name2) - (name1 < name2);
 }
-
-

@@ -1,3 +1,8 @@
+/*
+    Autor: Luciano Rodriguez
+    E-mail: lucianoinso@gmail.com
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -24,10 +29,10 @@ u32 NumeroDeColores(WinterIsHere W);
 u32 IesimoVerticeEnElOrden(WinterIsHere W, u32 i);
 
 // Funciones de ordenación
-void OrdenNatural(WinterIsHere W);      // Falta implementar
-void OrdenWelshPowell(WinterIsHere W);  // Falta implementar
-void AleatorizarVertices(WinterIsHere W, u32 x);  // Falta implementar
-void ReordenManteniendoBloqueColores(WinterIsHere W, u32 x);  // Falta implementar
+void OrdenNatural(WinterIsHere W);
+void OrdenWelshPowell(WinterIsHere W);
+void AleatorizarVertices(WinterIsHere W, u32 x);
+void ReordenManteniendoBloqueColores(WinterIsHere W, u32 x);
 
 // Funciones de los vertices
 u32 NombreDelVertice(WinterIsHere W, u32 x);

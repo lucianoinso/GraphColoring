@@ -272,7 +272,7 @@ u32 IesimoVerticeEnElOrden(WinterIsHere W, u32 i) {
 // Funciones de ordenación
 
 /*
-    Ordena en orden creciente segun el nombre del vertice 
+    Ordena en orden creciente segun el nombre de los vertices
 */
 void OrdenNatural(WinterIsHere W) {
     qsort(W->orderedVertexArray, NumeroDeVertices(W),
@@ -280,7 +280,7 @@ void OrdenNatural(WinterIsHere W) {
 }
 
 /*
-    Mayor a menor segun el grado
+    Ordena en orden decreciente segun el grado de los vertices
 */
 void OrdenWelshPowell(WinterIsHere W) {
     qsort(W->orderedVertexArray, NumeroDeVertices(W),
@@ -288,8 +288,8 @@ void OrdenWelshPowell(WinterIsHere W) {
 }
 
 /*
-    Funcion que devuelve un numero aleatorio
-    (fijarse lo del 0)
+    Algoritmo Xorshift32 que devuelve un numero aleatorio 
+    de 32 bits, el state inicial (seed) tiene que ser distinto de 0
 */
 u32 xorshift32(u32 state[static 1])
 {
@@ -301,6 +301,10 @@ u32 xorshift32(u32 state[static 1])
     return x;
 }
 
+/*
+    Calcula un numero aleatorio de 0 a 'n' tomando como seed 'x'
+    con distribucion mas uniforme que solo utilizar 'rand() % n'
+*/
 static u32 rand_uint(u32 n, u32 *x) {
     u32 rand_uint_max = 0xFFFFFFFF;
     u32 limit = rand_uint_max - rand_uint_max % n;
@@ -315,13 +319,20 @@ static u32 rand_uint(u32 n, u32 *x) {
 void AleatorizarVertices(WinterIsHere W, u32 x) {
     u32 i, j, tmp;
     u32 n = NumeroDeVertices(W);
-    u32 *random_order_array = malloc(n*sizeof(u32));
+    u32 *random_order_array = malloc(n * sizeof(u32));
+    // Aqui se guardaran los nombres de los vertices segun el orden aleatorio
+    // que queremos que tenga el arreglo de los vertices ordenados
 
+    // Obtenemos los nombres de los vertices tal cual están en el arreglo
+    // de vertices ordenados y los guardamos en el arreglo nuevo
     for (i = 0; i < n; i++)
         random_order_array[i] = get_vertex_name(W->orderedVertexArray[i]);
 
+    // Ordeno de menor a mayor para que el shuffling sea deterministico segun
+    // el parametro 'x'
     qsort(random_order_array, n, sizeof(random_order_array[0]), cmpMinToMax);
     
+    // Implementación del algoritmo de shuffling de Fisher-Yates
     for (i = n - 1; i > 0; i--) {
         // Le pasamos la cantidad de elementos del arreglo 'n' y la variable
         // 'x' como seed a rand_uint()
@@ -329,8 +340,11 @@ void AleatorizarVertices(WinterIsHere W, u32 x) {
         tmp = random_order_array[j];
         random_order_array[j] = random_order_array[i];
         random_order_array[i] = tmp;
-   }
+    }
 
+    // Guardamos los vertices segun el orden obtenido en el shuffle realizado
+    // en random_order_array, al estar guardados por sus nombres tenemos que
+    // buscarlos
     for (i = 0; i < n ; i++)
         W->orderedVertexArray[i] = search_node(random_order_array[i],
                                                W->vertex_hashmap);
@@ -344,16 +358,19 @@ void orderByRandomBlocksOfColor(WinterIsHere W, u32 x){
     u32 i, j, tmp;
     u32 n = NumeroDeVertices(W);
 
-    // Recorremos el arreglo para contar los colores
+    // Recorremos el arreglo de vertices para contar la cantidad de vertices
+    // que tiene cada color y lo guardamos en el arreglo color_amount
     for (i = 0; i < n; i++)
         color_amount[get_vertex_color(W->orderedVertexArray[i])]++;
 
+    // Creamos otro arreglo con todos los colores utilizados para luego hacer
+    // un shuffling y obtener el orden aleatorio
     u32 *random_color_order = malloc((ncolores + 1) * sizeof(u32));
     for (i = 0; i < ncolores + 1; i++)
         random_color_order[i] = i;
-    
-    
-    // Implementación de algoritmo de shuffling Fisher-Yates
+
+    // Hacemos el shuffling de los colores utilizando una implementación
+    // del algoritmo de Fisher-Yates
     for (i = ncolores ; i > 0; i--) {
         // Le pasamos la cantidad de elementos del arreglo 'n' y la variable
         // 'x' como seed a rand_uint()
@@ -670,14 +687,17 @@ int main() {
     /*for (u32 i = 0; i < NumeroDeVertices(W); i++)
         printf("%"SCNu32",", GradoDelVertice(W,IesimoVerticeEnElOrden(W,i)));
     printf("\n\n");*/
+    dumpOrderedVertexArray(W, stdout);
     OrdenWelshPowell(W);
+    printf("\n\n");
+    dumpOrderedVertexArray(W, stdout);
 
 /*    for (u32 i = 0; i < NumeroDeVertices(W); i++)
         printf("%"SCNu32",", GradoDelVertice(W,IesimoVerticeEnElOrden(W,i)));
     printf("\n\n");*/
-    dumpOrderedVertexArray(W, stdout);
+//    dumpOrderedVertexArray(W, stdout);
     u32 tag = 1;
-    u32 neig = 49;
+    u32 neig = 1;
     printf("\n\nTag: %"SCNu32", Vecino %"SCNu32" es %"SCNu32"\n", tag, neig, IesimoVecino(W, tag, neig));
 
 //    u32 colores = Greedy(W);
