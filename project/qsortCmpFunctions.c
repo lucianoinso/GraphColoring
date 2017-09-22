@@ -16,12 +16,12 @@ int cmpNaturalOrder(const void *p, const void *q){
     // return (0) - (0) = return 0
 }
 
+// Ordenamiento segun el grado en orden decreciente
 int cmpWelshPowell(const void *p, const void *q){
     vertex v1 = *(vertex const *) p;
     vertex v2 = *(vertex const *) q;
     u32 v1grade = get_vertex_grade(v1);
     u32 v2grade = get_vertex_grade(v2);
-    // Ordenamiento segun el grado en orden decreciente
     
     if(v1grade < v2grade) {
         return 1;
@@ -74,7 +74,8 @@ int cmpMaxToMinColAmount(const void *p, const void *q){
         u32 c2color = ca2->color;
         if (c1color < c2color) return -1;
         else if (c1color > c2color) return 1;
-        // este último caso lo mas probable es que no exista pero para abarcar todos los casos
+        // Este caso lo mas probable es que no exista ya que los nombres no se
+        // repiten
         else return 0;  // (c1color == c2color)
     }
 }
@@ -94,7 +95,8 @@ int cmpMaxToMinByColor(const void *p, const void *q){
         u32 v2name = v2->name;
         if (v1name < v2name) return -1;
         else if (v1name > v2name) return 1;
-        // Este caso lo mas probable es que no exista pero para abarcar todos los casos
+        // Este caso lo mas probable es que no exista ya que los nombres no se
+        // repiten
         else return 0;  // (v1name == v2name)
     }
 }

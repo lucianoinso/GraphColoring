@@ -2,12 +2,15 @@
 
 vertex create_vertex(u32 tag, u32 name, u32 color, u32 grade) {
     vertex v = calloc(1, sizeof(struct VertexSt));
-    set_vertex_tag(v, tag);
-    set_vertex_name(v, name);
-    set_vertex_color(v, color);
-    set_vertex_grade(v, grade);
-    v->neighList = NULL;
-    v->lastNeigh = NULL;
+    
+    if (v != NULL){
+        v->tag = tag;
+        v->name = name;
+        v->color = color;
+        v->grade = grade;
+        v->neighList = NULL;
+        v->lastNeigh = NULL;
+    }
     return v;
 }
 
@@ -110,7 +113,7 @@ void append_vertex_to_neigh_list(vertex v, vertex vneigh) {
 }
 
 
-void make_vertex_neighbs(vertex v1, vertex v2){
+void make_vertex_neighs(vertex v1, vertex v2){
     if (v1 != NULL && v2 != NULL) {
         append_vertex_to_neigh_list(v1,v2);
         append_vertex_to_neigh_list(v2,v1);
@@ -129,26 +132,23 @@ neighb_t list_destroy(neighb_t list) {
     return list;
 }
 
-void print_neigh_list(neighb_t list) {
-    neighb_t auxlist = list;
-    vertex v1;
-    printf("Neighbours: ");
-    while(auxlist != NULL) {
-        v1 = auxlist->vertex_pt;
+void print_vertex_neighs(vertex v) {
+    if (v != NULL){
+        neighb_t auxlist = v->neighList;
+        vertex v1;
+        printf("Neighbours: ");
+        while(auxlist != NULL) {
+            v1 = auxlist->vertex_pt;
 
-        if(auxlist->next != NULL) {
-            printf("%" SCNu32 ", ", v1->name);
-        } else {
-            printf("%" SCNu32 "\n", v1->name); 
+            if(auxlist->next != NULL) {
+                printf("%" SCNu32 ", ", v1->name);
+            } else {
+                printf("%" SCNu32 "\n", v1->name); 
+            }
+            auxlist = auxlist->next;
         }
-
-        auxlist = auxlist->next;
+        printf("\n");
     }
-    printf("\n");
-}
-
-void printVertexNeighs(vertex v) {
-    print_neigh_list(v->neighList);
 }
 
 void print_vertex_data(vertex v) {
@@ -156,10 +156,9 @@ void print_vertex_data(vertex v) {
         printf("Tag: %"SCNu32" Name: %"SCNu32" Color: %"SCNu32" Grade: %"SCNu32" \n",
                 get_vertex_tag(v), get_vertex_name(v), get_vertex_color(v),
                 get_vertex_grade(v));
-        printVertexNeighs(v);
+        print_vertex_neighs(v);
     }
 }
-
 
 void print_all_neighs_data(vertex v) {
     if (v != NULL){
@@ -199,24 +198,24 @@ int main(void) {
     vertex v5 = create_vertex(5, 5 ,0, 3);
     print_vertex_data(v5);
 
-    make_vertex_neighbs(v1, v2);
-    make_vertex_neighbs(v1, v3);
-    make_vertex_neighbs(v1, v5);
-    make_vertex_neighbs(v2, v5);
-    make_vertex_neighbs(v2, v3);
-    make_vertex_neighbs(v3, v4);
-    make_vertex_neighbs(v4, v5);
+    make_vertex_neighs(v1, v2);
+    make_vertex_neighs(v1, v3);
+    make_vertex_neighs(v1, v5);
+    make_vertex_neighs(v2, v5);
+    make_vertex_neighs(v2, v3);
+    make_vertex_neighs(v3, v4);
+    make_vertex_neighs(v4, v5);
 
     printf("Vertex 1 neighs:\n");
-    printVertexNeighs(v1);
+    print_vertex_neighs(v1);
     printf("Vertex 2 neighs:\n");
-    printVertexNeighs(v2);
+    print_vertex_neighs(v2);
     printf("Vertex 3 neighs:\n");
-    printVertexNeighs(v3);
+    print_vertex_neighs(v3);
     printf("Vertex 4 neighs:\n");
-    printVertexNeighs(v4);
+    print_vertex_neighs(v4);
     printf("Vertex 5 neighs:\n");
-    printVertexNeighs(v5);
+    print_vertex_neighs(v5);
     printf("\n");
 
     print_all_neighs_data(v4);

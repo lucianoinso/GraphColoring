@@ -37,9 +37,9 @@ u32 get_vertex_name(vertex v);
 neighb_t get_vertex_neigh_list(vertex v);
 void print_vertex_data(vertex v);
 void print_all_neighs_data(vertex v);
-void printVertexNeighs(vertex v);
+void print_vertex_neighs(vertex v);
 void append_vertex_to_neigh_list(vertex v, vertex vneigh);
 neighb_t list_destroy(neighb_t list);
-void make_vertex_neighbs(vertex v1, vertex v2);
+void make_vertex_neighs(vertex v1, vertex v2);
 
 #endif

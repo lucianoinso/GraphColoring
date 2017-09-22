@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include "hash_map.h"
+#include "hashtable.h"
 #include "queue.h"
 #include "qsortCmpFunctions.h"
 
