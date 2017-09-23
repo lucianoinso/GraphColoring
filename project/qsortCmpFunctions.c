@@ -74,8 +74,6 @@ int cmpMaxToMinColAmount(const void *p, const void *q){
         u32 c2color = ca2->color;
         if (c1color < c2color) return -1;
         else if (c1color > c2color) return 1;
-        // Este caso lo mas probable es que no exista ya que los nombres no se
-        // repiten
         else return 0;  // (c1color == c2color)
     }
 }
@@ -90,7 +88,7 @@ int cmpMaxToMinByColor(const void *p, const void *q){
         return 1;
     } else if(v1color > v2color) {
         return -1;
-    } else {  // c1ColAmount == c2ColAmount
+    } else {
         u32 v1name = v1->name;
         u32 v2name = v2->name;
         if (v1name < v2name) return -1;

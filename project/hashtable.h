@@ -5,7 +5,6 @@
 #include <string.h>
 #include "vertex.h"
 
-
 typedef struct Ht_node_St *ht_node;
 typedef struct Hashtable_St *hashtable;
 
