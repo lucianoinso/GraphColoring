@@ -15,6 +15,7 @@ typedef struct WinterSt *WinterIsHere;
 
 // Funciones de Construcción/Destrucción del grafo
 WinterIsHere WinterIsComing();
+WinterIsHere createGraph(u32 vCount, u32 eCount);
 int Primavera(WinterIsHere W);
 
 // Funciones de Coloreo
@@ -40,8 +41,7 @@ u32 ColorDelVertice(WinterIsHere W, u32 x);
 u32 GradoDelVertice(WinterIsHere W, u32 x);
 u32 IesimoVecino(WinterIsHere W, u32 x, u32 i);
 
-// Funciones auxiliares
-WinterIsHere createGraph(u32 vCount, u32 eCount);
+// Funciones auxiliares y de debugueo
 void dumpOrderedVertexArray(WinterIsHere W, FILE *f);
 void cleanColors(WinterIsHere W);
 int isValidColoring(WinterIsHere W);

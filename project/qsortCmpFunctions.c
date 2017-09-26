@@ -5,15 +5,21 @@ int cmpNaturalOrder(const void *p, const void *q){
     vertex v2 = *(vertex const *) q;
     u32 v1name = get_vertex_name(v1);
     u32 v2name = get_vertex_name(v2);
+    /*   
+      Para el return se opera con los resultados booleanos 
+      de las funciones de la forma:
+      si v1 > v2
+      return (1) - (0) = return 1
+      si v2 > v1
+      return (0) - (1) = return -1
+      si v1 == v2
+      return (0) - (0) = return 0
+    
+      Como los nombres de los vertices no se repiten no hace falta
+      dar un criterio extra de ordenamiento cuando estos son iguales para
+      que la funcion sea deterministica
+    */
     return (v1name > v2name) - (v1name < v2name);
-    // Para el return se opera con los resultados booleanos 
-    // de las funciones de la forma:
-    // si v1 > v2
-    // return (1) - (0) = return 1
-    // si v2 > v1
-    // return (0) - (1) = return -1
-    // si v1 == v2
-    // return (0) - (0) = return 0
 }
 
 // Ordenamiento segun el grado en orden decreciente
@@ -93,14 +99,22 @@ int cmpMaxToMinByColor(const void *p, const void *q){
         u32 v2name = v2->name;
         if (v1name < v2name) return -1;
         else if (v1name > v2name) return 1;
-        // Este caso lo mas probable es que no exista ya que los nombres no se
-        // repiten
+        // Este ultimo caso lo mas probable es que no exista ya que los nombres
+        // no se repiten.
         else return 0;  // (v1name == v2name)
     }
 }
 
 int cmpMinToMax(const void *p, const void *q){
-    u32 name1 = *(u32 const *) p;
-    u32 name2 = *(u32 const *) q;
-    return (name1 > name2) - (name1 < name2);
+    vertex v1 = *(vertex const *) p;
+    vertex v2 = *(vertex const *) q;
+    u32 tag1 = get_vertex_tag(v1);
+    u32 tag2 = get_vertex_tag(v2);
+
+    return (tag1 > tag2) - (tag1 < tag2);
+    /*
+      Como los tags de los vertices no se repiten no hace falta
+      dar un criterio extra de ordenamiento cuando estos son iguales para
+      que la funcion sea deterministica
+    */
 }

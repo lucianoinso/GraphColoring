@@ -1,5 +1,7 @@
 #include "vertex.h"
 
+// Funciones de creación y destrucción
+
 vertex create_vertex(u32 tag, u32 name, u32 color, u32 grade) {
     vertex v = calloc(1, sizeof(struct VertexSt));
     
@@ -14,36 +16,26 @@ vertex create_vertex(u32 tag, u32 name, u32 color, u32 grade) {
     return v;
 }
 
+neighb_t destroy_list(neighb_t list) {
+    neighb_t aux;
+    
+    while (list != NULL) {
+        aux = list;
+        list = list->next;
+        // destroy the item if it has to
+        free(aux);
+    }
+    return list;
+}
+
 vertex destroy_vertex(vertex v) {
-    v->neighList = list_destroy(v->neighList);
+    v->neighList = destroy_list(v->neighList);
     free(v);
     v = NULL;
     return v;
 }
 
-void set_vertex_tag(vertex v, u32 t) {
-    if (v != NULL) {
-        v->tag = t;
-    }
-}
-
-void set_vertex_color(vertex v, u32 c) {
-    if (v != NULL) {
-        v->color = c;
-    }
-}
-
-void set_vertex_grade(vertex v, u32 grade) {
-    if (v != NULL) {
-        v->grade = grade;
-    }
-}
-
-void set_vertex_name(vertex v, u32 name) {
-    if (v != NULL) {
-        v->name = name;
-    }
-}
+// Funciones getters
 
 u32 get_vertex_tag(vertex v) {
     if (v != NULL) {
@@ -93,6 +85,41 @@ neighb_t get_last_neigh(vertex v){
     }
 }
 
+// Funciones de seteo y modificación
+
+void set_vertex_tag(vertex v, u32 t) {
+    if (v != NULL) {
+        v->tag = t;
+    }
+}
+
+void set_vertex_color(vertex v, u32 c) {
+    if (v != NULL) {
+        v->color = c;
+    }
+}
+
+void set_vertex_grade(vertex v, u32 grade) {
+    if (v != NULL) {
+        v->grade = grade;
+    }
+}
+
+void set_vertex_name(vertex v, u32 name) {
+    if (v != NULL) {
+        v->name = name;
+    }
+}
+
+void modify_vertex_values(u32 tag, u32 name, u32 color, u32 grade, vertex v) {
+    if (v != NULL){
+        v->tag = tag;
+        v->name = name;
+        v->color = color;
+        v->grade = grade;
+    }
+}
+
 void append_vertex_to_neigh_list(vertex v, vertex vneigh) {
     if (v != NULL) {
         neighb_t aux = v->neighList;
@@ -112,7 +139,6 @@ void append_vertex_to_neigh_list(vertex v, vertex vneigh) {
     }
 }
 
-
 void make_vertex_neighs(vertex v1, vertex v2){
     if (v1 != NULL && v2 != NULL) {
         append_vertex_to_neigh_list(v1,v2);
@@ -120,36 +146,7 @@ void make_vertex_neighs(vertex v1, vertex v2){
     }
 }
 
-neighb_t list_destroy(neighb_t list) {
-    neighb_t aux;
-    
-    while (list != NULL) {
-        aux = list;
-        list = list->next;
-        // destroy the item if it has to
-        free(aux);
-    }
-    return list;
-}
-
-void print_vertex_neighs(vertex v) {
-    if (v != NULL){
-        neighb_t auxlist = v->neighList;
-        vertex v1;
-        printf("Neighbours: ");
-        while(auxlist != NULL) {
-            v1 = auxlist->vertex_pt;
-
-            if(auxlist->next != NULL) {
-                printf("%" SCNu32 ", ", v1->name);
-            } else {
-                printf("%" SCNu32 "\n", v1->name); 
-            }
-            auxlist = auxlist->next;
-        }
-        printf("\n");
-    }
-}
+// Funciones de impresión y debugging
 
 void print_vertex_data(vertex v) {
     if (v != NULL){
@@ -171,61 +168,21 @@ void print_all_neighs_data(vertex v) {
     }
 }
 
-void modify_vertex_values(u32 tag, u32 name, u32 color, u32 grade, vertex v) {
+void print_vertex_neighs(vertex v) {
     if (v != NULL){
-        v->tag = tag;
-        v->name = name;
-        v->color = color;
-        v->grade = grade;
+        neighb_t auxlist = v->neighList;
+        vertex v1;
+        printf("Neighbours: ");
+        while(auxlist != NULL) {
+            v1 = auxlist->vertex_pt;
+
+            if(auxlist->next != NULL) {
+                printf("%" SCNu32 ", ", v1->name);
+            } else {
+                printf("%" SCNu32 "\n", v1->name); 
+            }
+            auxlist = auxlist->next;
+        }
+        printf("\n");
     }
 }
-
-/*
-int main(void) {
-
-    vertex v1 = create_vertex(1, 1 ,0, 3);
-    print_vertex_data(v1);
-
-    vertex v2 = create_vertex(2, 2 ,0, 3);
-    print_vertex_data(v2);
-
-    vertex v3 = create_vertex(3, 3 ,0, 3);
-    print_vertex_data(v3);
-
-    vertex v4 = create_vertex(4, 4 ,0, 2);
-    print_vertex_data(v4);
-
-    vertex v5 = create_vertex(5, 5 ,0, 3);
-    print_vertex_data(v5);
-
-    make_vertex_neighs(v1, v2);
-    make_vertex_neighs(v1, v3);
-    make_vertex_neighs(v1, v5);
-    make_vertex_neighs(v2, v5);
-    make_vertex_neighs(v2, v3);
-    make_vertex_neighs(v3, v4);
-    make_vertex_neighs(v4, v5);
-
-    printf("Vertex 1 neighs:\n");
-    print_vertex_neighs(v1);
-    printf("Vertex 2 neighs:\n");
-    print_vertex_neighs(v2);
-    printf("Vertex 3 neighs:\n");
-    print_vertex_neighs(v3);
-    printf("Vertex 4 neighs:\n");
-    print_vertex_neighs(v4);
-    printf("Vertex 5 neighs:\n");
-    print_vertex_neighs(v5);
-    printf("\n");
-
-    print_all_neighs_data(v4);
-
-    v1 = destroy_vertex(v1);
-    v2 = destroy_vertex(v2);
-    v3 = destroy_vertex(v3);
-    v4 = destroy_vertex(v4);
-    v5 = destroy_vertex(v5);
-
-    printf("\n");
-    return 0;
-}*/

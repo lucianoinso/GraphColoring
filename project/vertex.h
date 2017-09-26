@@ -23,23 +23,30 @@ struct VertexSt {
     neighb_t lastNeigh;
 };
 
+// Funciones de creación y destrucción
 vertex create_vertex(u32 tag, u32 name, u32 color, u32 grade);
 vertex destroy_vertex(vertex v);
-void set_vertex_tag(vertex v, u32 t);
-void set_vertex_color(vertex v, u32 c);
-void set_vertex_grade(vertex v, u32 grade);
-void set_vertex_name(vertex v, u32 name);
-void modify_vertex_values(u32 tag, u32 name, u32 color, u32 grade, vertex v);
+
+// Funciones getters
 u32 get_vertex_tag(vertex v);
 u32 get_vertex_color(vertex v);
 u32 get_vertex_grade(vertex v);
 u32 get_vertex_name(vertex v);
 neighb_t get_vertex_neigh_list(vertex v);
+neighb_t get_last_neigh(vertex v);
+
+// Funciones de seteo y modificación
+void set_vertex_tag(vertex v, u32 t);
+void set_vertex_color(vertex v, u32 c);
+void set_vertex_grade(vertex v, u32 grade);
+void set_vertex_name(vertex v, u32 name);
+void modify_vertex_values(u32 tag, u32 name, u32 color, u32 grade, vertex v);
+void append_vertex_to_neigh_list(vertex v, vertex vneigh);
+void make_vertex_neighs(vertex v1, vertex v2);
+
+// Funciones de impresión y debugging
 void print_vertex_data(vertex v);
 void print_all_neighs_data(vertex v);
 void print_vertex_neighs(vertex v);
-void append_vertex_to_neigh_list(vertex v, vertex vneigh);
-neighb_t list_destroy(neighb_t list);
-void make_vertex_neighs(vertex v1, vertex v2);
 
 #endif

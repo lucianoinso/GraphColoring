@@ -1,5 +1,16 @@
 #include "queue.h"
 
+struct QueueSt {
+    qnode front, rear;
+};
+
+struct QueueNodeSt {
+    vertex vertex_pt;
+    qnode next;
+};
+
+// Funciones de creación y destrucción
+
 qnode createQueueNode(vertex v){
     qnode n = malloc(sizeof(struct QueueNodeSt));
     n->vertex_pt = v;
@@ -24,6 +35,8 @@ void destroyQueue(queue q){
         free(q);
     }
 }
+
+// Funciones de operaciones en colas
 
 bool isEmpty(queue q){
     return (q->front == NULL);
@@ -59,6 +72,8 @@ vertex dequeue(queue q){
     }
 }
 
+// Funciones de impresión y debugging
+
 void printQueue(queue q){
     if (q != NULL){
         qnode aux = q->front;
@@ -73,38 +88,3 @@ void printQueue(queue q){
         printf("]\n");
     }
 }
-
-/*int main() {
-    vertex v1 = create_vertex(1, 1, 0, 0);
-    vertex v2 = create_vertex(2, 2, 0, 0);
-    vertex v3 = create_vertex(3, 3, 0, 0);
-    queue q = createQueue();
-    enqueue(q, v2);
-    printQueue(q);
-    enqueue(q, v1);
-    printQueue(q);
-    enqueue(q, v3);
-    printQueue(q);
-    enqueue(q, v1);
-    printQueue(q);
-    vertex v4 = dequeue(q);
-    printQueue(q);
-    v4 = dequeue(q);
-    printQueue(q);
-    v4 = dequeue(q);
-    printQueue(q);
-    v4 = dequeue(q);
-    printQueue(q);
-
-//    v4 = dequeue(q);
-//    v4 = dequeue(q);
-
-    if (v4 != NULL)
-        printf("Dequeued item is %d\n", get_vertex_tag(v4));
-
-    destroyQueue(q);
-    destroy_vertex(v1);
-    destroy_vertex(v2);
-    destroy_vertex(v3);
-    return 0;
-}*/
