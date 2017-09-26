@@ -1,6 +1,6 @@
 TARGET = WinterIsComing
 CC = gcc
-CFLAGS = -std=c99 -Wall -Werror -Wextra -O3 -DNDEBUG
+CFLAGS = -std=c99 -Wall -Werror -Wextra -O3 -DNDEBUG -g
 
 .PHONY: default all clean
 

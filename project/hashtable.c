@@ -19,7 +19,8 @@ hashtable create_hashtable(u32 n_buckets) {
         htable = calloc(1, sizeof(struct Hashtable_St));
         if (htable != NULL){
             htable->n_buckets = n_buckets;
-            htable->hash_array = calloc(n_buckets, sizeof(struct Ht_node_St));
+            htable->hash_array = calloc(n_buckets, sizeof(hashtable));
+            
             if (htable->hash_array == NULL){
                 destroy_hashtable(htable);
                 htable = NULL;

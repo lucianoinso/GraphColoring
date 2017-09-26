@@ -9,8 +9,8 @@ typedef uint32_t u32;
 typedef struct VertexSt *vertex;
 typedef struct NeighbSt *neighb_t;
 
-struct NeighbSt {
-    vertex vertex_pt;
+struct __attribute__((packed)) NeighbSt {
+    u32 vNeighTag;
     neighb_t next;
 };
 

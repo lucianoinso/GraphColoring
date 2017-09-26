@@ -126,7 +126,7 @@ void append_vertex_to_neigh_list(vertex v, vertex vneigh) {
         neighb_t new_neighb = NULL;
 
         new_neighb = calloc(1, sizeof(struct NeighbSt));
-        new_neighb->vertex_pt = vneigh;
+        new_neighb->vNeighTag = get_vertex_tag(vneigh);
         new_neighb->next = NULL;
 
         if (aux == NULL) {
@@ -153,7 +153,7 @@ void print_vertex_data(vertex v) {
         printf("Tag: %"SCNu32" Name: %"SCNu32" Color: %"SCNu32" Grade: %"SCNu32" \n",
                 get_vertex_tag(v), get_vertex_name(v), get_vertex_color(v),
                 get_vertex_grade(v));
-        print_vertex_neighs(v);
+//        print_vertex_neighs(v);
     }
 }
 
@@ -162,13 +162,33 @@ void print_all_neighs_data(vertex v) {
         neighb_t nglist = get_vertex_neigh_list(v);
         printf("Vertex %"SCNu32 " neighbours data:\n", v->name);
         while (nglist != NULL) {
-            print_vertex_data(nglist->vertex_pt);
+            printf("%"SCNu32, nglist->vNeighTag);
+//            print_vertex_data(nglist->vertex_pt);
             nglist = nglist->next;
         }
     }
 }
 
 void print_vertex_neighs(vertex v) {
+    if (v != NULL){
+        neighb_t auxlist = v->neighList;
+        u32 vTag;
+        printf("Neighbours: ");
+        while(auxlist != NULL) {
+            vTag = auxlist->vNeighTag;
+
+            if(auxlist->next != NULL) {
+                printf("%" SCNu32 ", ", vTag);
+            } else {
+                printf("%" SCNu32 "\n", vTag); 
+            }
+            auxlist = auxlist->next;
+        }
+        printf("\n");
+    }
+}
+
+/*void print_vertex_neighs(vertex v) {
     if (v != NULL){
         neighb_t auxlist = v->neighList;
         vertex v1;
@@ -185,4 +205,4 @@ void print_vertex_neighs(vertex v) {
         }
         printf("\n");
     }
-}
+}*/

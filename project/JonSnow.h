@@ -42,6 +42,6 @@ u32 GradoDelVertice(WinterIsHere W, u32 x);
 u32 IesimoVecino(WinterIsHere W, u32 x, u32 i);
 
 // Funciones auxiliares y de debugueo
-void dumpOrderedVertexArray(WinterIsHere W, FILE *f);
+void dumpvertexOrdByTagArray(WinterIsHere W, FILE *f);
 void cleanColors(WinterIsHere W);
 int isValidColoring(WinterIsHere W);
