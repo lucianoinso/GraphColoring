@@ -1,10 +1,10 @@
 #include "qsortCmpFunctions.h"
 
 int cmpNaturalOrder(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 v1name = get_vertex_name(v1);
-    u32 v2name = get_vertex_name(v2);
+    vertexOrd vOrd1 = *(vertexOrd const *) p;
+    vertexOrd vOrd2 = *(vertexOrd const *) q;
+    u32 v1name = vOrd1->order;
+    u32 v2name = vOrd2->order;
     /*   
       Para el return se opera con los resultados booleanos 
       de las funciones de la forma:
@@ -24,25 +24,25 @@ int cmpNaturalOrder(const void *p, const void *q){
 
 // Ordenamiento segun el grado en orden decreciente
 int cmpWelshPowell(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 v1grade = get_vertex_grade(v1);
-    u32 v2grade = get_vertex_grade(v2);
+    vertexOrd vOrd1 = *(vertexOrd const *) p;
+    vertexOrd vOrd2 = *(vertexOrd const *) q;
+    u32 v1grade = vOrd1->order;
+    u32 v2grade = vOrd2->order;
     
     if(v1grade < v2grade) {
         return 1;
     } else if(v1grade > v2grade) {
         return -1;
     } else {  // v1grade == v2grade
-        u32 v1name = get_vertex_name(v1);
-        u32 v2name = get_vertex_name(v2);
-        if (v1name < v2name) return -1;
-        else if (v1name > v2name) return 1;
-        else return 0;  // (v1name == v2name)
+              // ordeno en orden creciente segun el tag a los
+              // que tengan el mismo grado
+        u32 v1tag = vOrd1->tag;
+        u32 v2tag = vOrd2->tag;
+        if (v1tag < v2tag) return -1;
+        else if (v1tag > v2tag) return 1;
+        else return 0;  // (v1tag == v2tag)
     }
     return 0;
-
-    return (v2grade > v1grade) - (v2grade < v1grade);
 }
 
 int cmpMinToMaxColAmount(const void *p, const void *q){
@@ -85,31 +85,30 @@ int cmpMaxToMinColAmount(const void *p, const void *q){
 }
 
 int cmpMaxToMinByColor(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 v1color = get_vertex_color(v1);
-    u32 v2color = get_vertex_color(v2);
+    vertexOrd vOrd1 = *(vertexOrd const *) p;
+    vertexOrd vOrd2 = *(vertexOrd const *) q;
+    u32 v1color = vOrd1->order;
+    u32 v2color = vOrd2->order;
 
     if(v1color < v2color) {
         return 1;
     } else if(v1color > v2color) {
         return -1;
-    } else {
-        u32 v1name = v1->name;
-        u32 v2name = v2->name;
-        if (v1name < v2name) return -1;
-        else if (v1name > v2name) return 1;
-        // Este ultimo caso lo mas probable es que no exista ya que los nombres
-        // no se repiten.
-        else return 0;  // (v1name == v2name)
+    } else {  // v1color == color
+              // ordeno en orden creciente segun el tag a los
+              // que tengan el mismo color
+        u32 v1tag = vOrd1->tag;
+        u32 v2tag = vOrd2->tag;
+        if (v1tag < v2tag) return -1;
+        else if (v1tag > v2tag) return 1;
+        else return 0;  // (v1tag == v2tag)
     }
+    return 0;
 }
 
 int cmpMinToMax(const void *p, const void *q){
-    vertex v1 = *(vertex const *) p;
-    vertex v2 = *(vertex const *) q;
-    u32 tag1 = get_vertex_tag(v1);
-    u32 tag2 = get_vertex_tag(v2);
+    u32 tag1 = *(u32 const *) p;
+    u32 tag2 = *(u32 const *) q;
 
     return (tag1 > tag2) - (tag1 < tag2);
     /*

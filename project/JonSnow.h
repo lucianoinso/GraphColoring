@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <inttypes.h>
 #include "hashtable.h"
 #include "queue.h"
@@ -42,6 +43,6 @@ u32 GradoDelVertice(WinterIsHere W, u32 x);
 u32 IesimoVecino(WinterIsHere W, u32 x, u32 i);
 
 // Funciones auxiliares y de debugueo
-void dumpvertexOrdByTagArray(WinterIsHere W, FILE *f);
+void dumpVertexOrdByTagArray(WinterIsHere W);
 void cleanColors(WinterIsHere W);
 int isValidColoring(WinterIsHere W);

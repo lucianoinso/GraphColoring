@@ -1,8 +1,13 @@
 #include "vertex.h"
 
+typedef struct VertexOrdSt {
+    u32 tag;
+    u32 order;
+} *vertexOrd;
+
 typedef struct ColAmountSt { 
-        u32 color;
-        u32 amount;
+    u32 color;
+    u32 amount;
 } *colAmount;
 
 int cmpNaturalOrder(const void *p, const void *q);

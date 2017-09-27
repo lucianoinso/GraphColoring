@@ -22,7 +22,6 @@ neighb_t destroy_list(neighb_t list) {
     while (list != NULL) {
         aux = list;
         list = list->next;
-        // destroy the item if it has to
         free(aux);
     }
     return list;
@@ -153,27 +152,27 @@ void print_vertex_data(vertex v) {
         printf("Tag: %"SCNu32" Name: %"SCNu32" Color: %"SCNu32" Grade: %"SCNu32" \n",
                 get_vertex_tag(v), get_vertex_name(v), get_vertex_color(v),
                 get_vertex_grade(v));
-//        print_vertex_neighs(v);
+ //       print_vertex_neighs(v);
     }
 }
 
-void print_all_neighs_data(vertex v) {
+/*void print_all_neighs_data(vertex v) {
     if (v != NULL){
         neighb_t nglist = get_vertex_neigh_list(v);
         printf("Vertex %"SCNu32 " neighbours data:\n", v->name);
         while (nglist != NULL) {
             printf("%"SCNu32, nglist->vNeighTag);
-//            print_vertex_data(nglist->vertex_pt);
+            print_vertex_data(nglist->vertex_pt);
             nglist = nglist->next;
         }
     }
-}
+}*/
 
 void print_vertex_neighs(vertex v) {
     if (v != NULL){
         neighb_t auxlist = v->neighList;
         u32 vTag;
-        printf("Neighbours: ");
+        printf("Neighbours Tags: ");
         while(auxlist != NULL) {
             vTag = auxlist->vNeighTag;
 
