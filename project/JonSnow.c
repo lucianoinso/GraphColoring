@@ -8,7 +8,7 @@ struct WinterSt {
     u32 NumeroDeColoresUsados;
     vertex *vertexOrdByTagArray; // Arreglo de punteros a los vertices en orden
                                  // creciente segun sus tags.
-    hashtable vertexHashtable;
+    hashtable vertexHashtable;  // Arreglo de la hashtable
     u32 *vertexOrderArray;  // Arreglo de tags con el orden en el que se corre
                             // Greedy.
 };
@@ -224,55 +224,71 @@ int Primavera(WinterIsHere W) {
 
 u32 Greedy(WinterIsHere W) {
     cleanColors(W);
-    u32 colorMaximo = 1;
-    u32 colorAux = 0;
-    u32 *arrayColores = NULL;
-    vertex vertexAux; 
-    for (u32 i = 0 ; i < W->NumeroDeVertices; i++) {
-        //  Iteramos sobre el arreglo de vertices en el orden en el que estan
-        // OLD vertexAux = W->vertexOrdByTagArray[i]; END OLD
+    u32 maxColor, auxColor, neighTag;;
+    u32 *colorArray = NULL;
 
-        vertexAux = W->vertexOrdByTagArray[W->vertexOrderArray[i]];
-        
-        if(get_vertex_grade(vertexAux) >= colorMaximo) {
-            arrayColores = calloc(colorMaximo, sizeof(u32));
-        } else {
-            arrayColores = calloc(get_vertex_grade(vertexAux), sizeof(u32));
-        }
-        neighb_t neighbHelp = get_vertex_neigh_list(vertexAux);
-        while(neighbHelp != NULL) {
-            
+    // Elegimos el primer vertice segun el orden en W->vertexOrderArray
+    vertex v = W->vertexOrdByTagArray[W->vertexOrderArray[0]];
+    // Le ponemos el color 1
+    set_vertex_color(v, 1);
+    maxColor = 1;
+    for (u32 i = 1 ; i < W->NumeroDeVertices; i++) {
+        // Iteramos desde el 2ndo vertice hasta el último en el orden dado
+        // en W->vertexOrderArray para colorearlos en ese orden.
+        v = W->vertexOrdByTagArray[W->vertexOrderArray[i]];
 
-            /*
-            OLD
-            if ((get_vertex_color(neighbHelp->vertex_pt) <= get_vertex_grade(vertexAux))
-                && (get_vertex_color(neighbHelp->vertex_pt) != 0)) {
-                    arrayColores[get_vertex_color(neighbHelp->vertex_pt) - 1] = 1;
+        // Creamos un arreglo de colores teniendo en cuenta el color maximo
+        // obtenido hasta el momento para el tamaño del mismo.
+        colorArray = calloc(maxColor, sizeof(u32));
+
+        // Obtenemos la lista de los vecinos del vertice que estamos por
+        // colorear
+        neighb_t vNeighList = get_vertex_neigh_list(v);
+
+        // Iteramos dentro de la lista en el orden en el que están
+        // y vamos llenando el arreglo de colores segun vamos viendo que estan
+        // siendo usados.
+        while(vNeighList != NULL) {
+            neighTag = vNeighList->vNeighTag;
+            if (get_vertex_color(W->vertexOrdByTagArray[neighTag]) != 0) {
+                // Decrementamos en 1 porque hacemos una relacion de colores a
+                // indices de la forma: colores de 1 a N, indice de 0 a N-1,
+                // indice = color - 1
+                colorArray[get_vertex_color(W->vertexOrdByTagArray[neighTag]) - 1] = 1;
             }
-            END OLD
-            */
-
-            if ((get_vertex_color(W->vertexOrdByTagArray[neighbHelp->vNeighTag]) <= get_vertex_grade(vertexAux))
-                && (get_vertex_color(W->vertexOrdByTagArray[neighbHelp->vNeighTag]) != 0)) {
-                    arrayColores[get_vertex_color(W->vertexOrdByTagArray[neighbHelp->vNeighTag]) - 1] = 1;
-            }
-
-            neighbHelp = neighbHelp->next;
+            // Pasamos al siguiente vecino hasta que se acabe la lista.
+            vNeighList = vNeighList->next;
         }
-        colorAux = 0;
-        while ((colorAux < get_vertex_grade(vertexAux)) && (colorAux < colorMaximo) && (arrayColores[colorAux] == 1)) {
-            colorAux++;
+        // En auxColor guardaremos el minimo color no usado entre los vecinos
+        // para luego asignarselo al vertice que estamos coloreando.
+        auxColor = 0;
+        // Mientras auxColor sea menor al color máximo usado en ese momento en
+        // el grafo y ese color no esté ya asignado a algun vecino dentro del
+        // arreglo de los colores de los vecinos 'colorArray' incrementamos.
+        while ((auxColor < maxColor) && (colorArray[auxColor] == 1)) {
+            auxColor++;
         }
-        colorAux++;
+        // En este momento ya tenemos el minimo color con el que podemos
+        // colorear al vertice que no está utilizado por sus vecinos pero en la
+        // forma en el que el arreglo guarda los colores (de 0 a n-1) por lo
+        // tanto incrementamos 1 vez para obtener el color real.
+        auxColor++;
 
-        set_vertex_color(vertexAux, colorAux);
-        if (colorMaximo < colorAux)
-            colorMaximo = colorAux;
-        free(arrayColores);
-        arrayColores = NULL;
+        // Seteamos el vertice con el color obtenido.
+        set_vertex_color(v, auxColor);
+        // Nos fijamos si el color es mas grande que maxColor y si lo es lo
+        // reemplazamos para que sirva para la próxima iteración y para obtener
+        // el numero cromatico del grafo al finalizar el algoritmo.
+        if (auxColor > maxColor)
+            maxColor = auxColor;
+        // Liberamos el arreglo de colores.
+        free(colorArray);
+        colorArray = NULL;
     }
-    W->NumeroDeColoresUsados = colorMaximo;
-    return colorMaximo;
+    // Seteamos el numero de colores usados con el color máximo obtenido
+    // durante el coloreo del grafo.
+    W->NumeroDeColoresUsados = maxColor;
+    return maxColor;
 }
 
 /*
@@ -784,159 +800,7 @@ int main() {
     printf("Loading...\n");
     WinterIsHere W = WinterIsComing();
     printf("Loading done.\n");
-
-    /*for (u32 i = 0; i < W->NumeroDeVertices; i++)
-        printf("%"SCNu32",", GradoDelVertice(W,IesimoVerticeEnElOrden(W,i)));
-    printf("\n\n");*/
-//    dumpVertexOrdByTagArray(W);
-    if (W != NULL) {
-//        vertex v = search_vertex(2647511047, W->vertexHashtable);
-//        print_vertex_data(v);
-//        print_vertex_data(W->vertexOrdByTagArray[0]);
-//        dumpVertexOrdByTagArray(W);
-//        printf("\n");
-//        AleatorizarVertices(W, 1);
-//        dumpVertexOrdByTagArray(W);
-//        printf("\n");
-//        dumpVertexOrdByTagArray(W);
-//        dumpVertexOrdByTagArray(W);
-        printf("\n\n");
-
-/*        for (u32 i = 0; i < 8; i++){
-            printf("%"SCNu32":\n", i);
-            ReordenManteniendoBloqueColores(W, i);
-        }*/
-        for (u32 i = 0; i < 100; i++){
-            OrdenNatural(W);
-            printf("El coloreo con Orden Natural es de: %"SCNu32"\n", Greedy(W));
-            OrdenWelshPowell(W);
-            printf("El coloreo con Orden WP es de: %"SCNu32"\n", Greedy(W));
-            AleatorizarVertices(W, 5);
-            printf("El coloreo con Vert Aleatorio es de: %"SCNu32"\n", Greedy(W));
-            ReordenManteniendoBloqueColores(W, 0);
-            printf("El coloreo con Reorden Colores 0 es de: %"SCNu32"\n", Greedy(W));
-            ReordenManteniendoBloqueColores(W, 1);
-            printf("El coloreo con Reorden Colores 1 es de: %"SCNu32"\n", Greedy(W));
-            ReordenManteniendoBloqueColores(W, 2);
-            printf("El coloreo con Reorden Colores 2 es de: %"SCNu32"\n", Greedy(W));
-            ReordenManteniendoBloqueColores(W, 3);
-            printf("El coloreo con Reorden Colores 3 es de: %"SCNu32"\n", Greedy(W));
-            ReordenManteniendoBloqueColores(W, 4);
-            printf("El coloreo con Reorden Colores 4 es de: %"SCNu32"\n", Greedy(W));
-            ReordenManteniendoBloqueColores(W, 5);
-            printf("El coloreo con Reorden Colores 5 es de: %"SCNu32"\n", Greedy(W));
-            ReordenManteniendoBloqueColores(W, 6);
-            printf("El coloreo con Reorden Colores 6 es de: %"SCNu32"\n", Greedy(W));
-        }
- //       u32 i, x;
- //       i = x = 0;
- //       printf("El vecino %"SCNu32 " de %"SCNu32" es: %"SCNu32"\n", i, x, IesimoVecino(W, x, i));
- //       x = 4;
- //       i = 1;
- //       printf("El vecino %"SCNu32 " de %"SCNu32" es: %"SCNu32"\n", i, x, IesimoVecino(W, x, i));
-
-//        OrdenNatural(W);
-//        AleatorizarVertices(W, 0);
-//        dumpVertexOrdByTagArray(W);
-        printf("W:\n");
-//        OrdenWelshPowell(W);
-//        AleatorizarVertices(W, 1);
-//        dumpVertexOrdByTagArray(W);
-        printf("N:\n");
-//        OrdenNatural(W);
-//        AleatorizarVertices(W, 0);
-//        dumpVertexOrdByTagArray(W);
-        printf("W:\n");
-//        OrdenWelshPowell(W);
-//        AleatorizarVertices(W, 2);
-//        dumpVertexOrdByTagArray(W);
-        printf("N:\n");
-//        OrdenNatural(W);
-//        AleatorizarVertices(W, 3);
-//        dumpVertexOrdByTagArray(W);
-        printf("W:\n");
-//        OrdenWelshPowell(W);
-//        AleatorizarVertices(W, 2);
-//        dumpVertexOrdByTagArray(W);
-//        OrdenNatural(W);
-//        Greedy(W);
-//        dumpVertexOrdByTagArray(W);
-//        dumpVertexOrdByTagArray(W);
-//        printf("\n");
-//        OrdenWelshPowell(W);
-//        dumpVertexOrdByTagArray(W);
-//        printf("\n");
-//        printf("Es bipartito: %d\n", Bipartito(W));
-
-//        ReordenManteniendoBloqueColores(W, 0);
-
-
-//        int isBipartite = Bipartito(W);
-//        printf("Es bipartito? %d\n", isBipartite);
-//        ReordenManteniendoBloqueColores(W, 1);
-//        dumpVertexOrdByTagArray(W);
-        printf("\n");
-
-//        dumpVertexOrdByTagArray(W);
-//        for (u32 i = 0; i < 10; i++){
-
-//            printf("i: %"SCNu32"\n\n", i % 2);
-//            dumpVertexOrdByTagArray(W);
-//        }
-//        printf("\nOrden aleatorio: 1\n");
-//        dumpVertexOrdByTagArray(W);
-
-//        for (u32 i = 0; i < 10; i++){
-            
-    //        printf("Orden Aleatorio 0\n=================\n");
-    //        dumpVertexOrdByTagArray(W);
-//        AleatorizarVertices(W, 1);
-    //        printf("Orden Aleatorio 1\n=================\n");
-    //        dumpVertexOrdByTagArray(W);
-    //        AleatorizarVertices(W, 2);
-    //        printf("Orden Aleatorio 2\n=================\n");
-    //        dumpVertexOrdByTagArray(W);
-    //        AleatorizarVertices(W, 1); 
-    //        printf("Orden Aleatorio 1\n=================\n");
-    //        dumpVertexOrdByTagArray(W);}
-        
-        /*
-        AleatorizarVertices(W, 2);
-        printf("Orden Aleatorio 2\n=================\n");
-        dumpVertexOrdByTagArray(W);
-        printf("\n");*/
-
-    //    cleanColors(W);
-//        Greedy(W);
-//        printf("El coloreo es de: %"SCNu32"\n", NumeroDeColores(W));
-//        dump_hashtable(W->vertexHashtable, stdout);
-//        dump_array(W->vertexHashtable);
-        Primavera(W);
-    }
+    printf("Coloring is: %"SCNu32 "\n", W->NumeroDeColoresUsados);
+    Primavera(W);
     return 0;
-//    dumpVertexOrdByTagArray(W);
-
-/*    for (u32 i = 0; i < W->NumeroDeVertices; i++)
-        printf("%"SCNu32",", GradoDelVertice(W,IesimoVerticeEnElOrden(W,i)));
-    printf("\n\n");*/
-//    dumpVertexOrdByTagArray(W);
-//    u32 tag = 15;
-//    u32 neig = 0;
-//    printf("NOMBRE: %"SCNu32"\n", NombreDelVertice(W,tag));
-//    printf("\n\nTag: %"SCNu32", Vecino %"SCNu32" es %"SCNu32"\n", tag, neig, IesimoVecino(W, tag, neig));
-//    print_vertex_data(search_vertex(NombreDelVertice(W, tag), W->vertexHashtable));
-//    print_vertex_data(search_vertex(NombreDelVertice(W,IesimoVecino(W, tag, neig)), W->vertexHashtable));
-//    print_vertex_data(search_vertex(NombreDelVertice(W,1), W->vertexHashtable));
-
-//    u32 colores = Greedy(W);
-/*    ReordenManteniendoBloqueColores(W, 2);
-    dumpVertexOrdByTagArray(W);
-    printf("\n");
-    ReordenManteniendoBloqueColores(W, 3);
-    dumpVertexOrdByTagArray(W);
-    printf("\n");
-    ReordenManteniendoBloqueColores(W, 1);
-    dumpVertexOrdByTagArray(W);
-    printf("Coloreo: %"SCNu32"\n", NumeroDeColores(W));
-*/
 }
