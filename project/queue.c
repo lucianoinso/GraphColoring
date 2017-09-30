@@ -11,21 +11,21 @@ struct QueueNodeSt {
 
 // Funciones de creación y destrucción
 
-qnode createQueueNode(vertex v){
+qnode createQueueNode(vertex v) {
     qnode n = malloc(sizeof(struct QueueNodeSt));
     n->vertex_pt = v;
     n->next = NULL;
     return n;
 }
 
-queue createQueue(){
+queue createQueue() {
     queue q = malloc(sizeof(struct QueueSt));
     q->front = q->rear = NULL;
     return q;
 }
 
-void destroyQueue(queue q){
-    if (q != NULL){
+void destroyQueue(queue q) {
+    if (q != NULL) {
         qnode aux;
         while (q->front != NULL) {
             aux = q->front->next;
@@ -37,15 +37,14 @@ void destroyQueue(queue q){
 }
 
 // Funciones de operaciones en colas
-
-bool isEmpty(queue q){
+bool isEmpty(queue q) {
     return (q->front == NULL);
 }
 
-void enqueue(queue q, vertex v){
-    if (q != NULL){
+void enqueue(queue q, vertex v) {
+    if (q != NULL) {
         qnode n = createQueueNode(v);
-        if (q->rear == NULL){
+        if (q->rear == NULL) {
             q->front = q->rear = n;
         } else {
             q->rear->next = n;
@@ -54,9 +53,9 @@ void enqueue(queue q, vertex v){
     }
 }
 
-vertex dequeue(queue q){
-    if (q != NULL){
-        if (q->front == NULL){
+vertex dequeue(queue q) {
+    if (q != NULL) {
+        if (q->front == NULL) {
             return NULL;
         } else {
             qnode n = q->front;
@@ -74,11 +73,11 @@ vertex dequeue(queue q){
 
 // Funciones de impresión y debugging
 
-void printQueue(queue q){
-    if (q != NULL){
+void printQueue(queue q) {
+    if (q != NULL) {
         qnode aux = q->front;
         printf("[");
-        while (aux != NULL){
+        while (aux != NULL) {
             vertex v1 = aux->vertex_pt;
             printf("%d", get_vertex_tag(v1));
             aux = aux->next;

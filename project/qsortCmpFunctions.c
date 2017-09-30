@@ -1,6 +1,6 @@
 #include "qsortCmpFunctions.h"
 
-int cmpNaturalOrder(const void *p, const void *q){
+int cmpNaturalOrder(const void *p, const void *q) {
     vertexOrd vOrd1 = *(vertexOrd const *) p;
     vertexOrd vOrd2 = *(vertexOrd const *) q;
     u32 v1name = vOrd1->order;
@@ -23,90 +23,106 @@ int cmpNaturalOrder(const void *p, const void *q){
 }
 
 // Ordenamiento segun el grado en orden decreciente
-int cmpWelshPowell(const void *p, const void *q){
+int cmpWelshPowell(const void *p, const void *q) {
     vertexOrd vOrd1 = *(vertexOrd const *) p;
     vertexOrd vOrd2 = *(vertexOrd const *) q;
     u32 v1grade = vOrd1->order;
     u32 v2grade = vOrd2->order;
-    
-    if(v1grade < v2grade) {
+
+    if (v1grade < v2grade) {
         return 1;
-    } else if(v1grade > v2grade) {
+    } else if (v1grade > v2grade) {
         return -1;
     } else {  // v1grade == v2grade
               // ordeno en orden creciente segun el tag a los
               // que tengan el mismo grado
         u32 v1tag = vOrd1->tag;
         u32 v2tag = vOrd2->tag;
-        if (v1tag < v2tag) return -1;
-        else if (v1tag > v2tag) return 1;
-        else return 0;  // (v1tag == v2tag)
+        if (v1tag < v2tag) {
+            return -1;
+        } else if (v1tag > v2tag) {
+            return 1;
+        } else {
+            return 0;  // (v1tag == v2tag)
+        }
     }
     return 0;
 }
 
-int cmpMinToMaxColAmount(const void *p, const void *q){
+int cmpMinToMaxColAmount(const void *p, const void *q) {
     colAmount ca1 = *(colAmount const *) p;
     colAmount ca2 = *(colAmount const *) q;
     u32 c1ColAmount = ca1->amount;
     u32 c2ColAmount = ca2->amount;
 
-    if(c1ColAmount < c2ColAmount) {
+    if (c1ColAmount < c2ColAmount) {
         return -1;
-    } else if(c1ColAmount > c2ColAmount) {
+    } else if (c1ColAmount > c2ColAmount) {
         return 1;
     } else {  // c1ColAmount == c2ColAmount
         u32 c1color = ca1->color;
         u32 c2color = ca2->color;
-        if (c1color < c2color) return -1;
-        else if (c1color > c2color) return 1;
-        else return 0;  // (c1color == c2color)
+        if (c1color < c2color) {
+            return -1;
+        } else if (c1color > c2color) {
+            return 1;
+        } else {
+            return 0;  // (c1color == c2color)
+        }
     }
     return 0;
 }
 
-int cmpMaxToMinColAmount(const void *p, const void *q){
+int cmpMaxToMinColAmount(const void *p, const void *q) {
     colAmount ca1 = *(colAmount const *) p;
     colAmount ca2 = *(colAmount const *) q;
     u32 c1ColAmount = ca1->amount;
     u32 c2ColAmount = ca2->amount;
 
-    if(c1ColAmount < c2ColAmount) {
+    if (c1ColAmount < c2ColAmount) {
         return 1;
-    } else if(c1ColAmount > c2ColAmount) {
+    } else if (c1ColAmount > c2ColAmount) {
         return -1;
     } else {  // c1ColAmount == c2ColAmount
         u32 c1color = ca1->color;
         u32 c2color = ca2->color;
-        if (c1color < c2color) return -1;
-        else if (c1color > c2color) return 1;
-        else return 0;  // (c1color == c2color)
+        if (c1color < c2color) {
+            return -1;
+        } else if (c1color > c2color) {
+            return 1;
+        } else {
+            return 0;  // (c1color == c2color)
+        }
     }
 }
 
-int cmpMaxToMinByColor(const void *p, const void *q){
+int cmpMaxToMinByColor(const void *p, const void *q) {
     vertexOrd vOrd1 = *(vertexOrd const *) p;
     vertexOrd vOrd2 = *(vertexOrd const *) q;
     u32 v1color = vOrd1->order;
     u32 v2color = vOrd2->order;
 
-    if(v1color < v2color) {
+    if (v1color < v2color) {
         return 1;
-    } else if(v1color > v2color) {
+    } else if (v1color > v2color) {
         return -1;
     } else {  // v1color == color
               // ordeno en orden creciente segun el tag a los
               // que tengan el mismo color
         u32 v1tag = vOrd1->tag;
         u32 v2tag = vOrd2->tag;
-        if (v1tag < v2tag) return -1;
-        else if (v1tag > v2tag) return 1;
-        else return 0;  // (v1tag == v2tag)
+        if (v1tag < v2tag) {
+            return -1;
+        } else if (v1tag > v2tag) {
+            return 1;
+        } else {
+            return 0;  // (v1tag == v2tag)
+        }
     }
     return 0;
 }
 
-int cmpMinToMax(const void *p, const void *q){
+int cmpMinToMax(const void *p, const void *q) {
     u32 tag1 = *(u32 const *) p;
     u32 tag2 = *(u32 const *) q;
 

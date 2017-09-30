@@ -5,7 +5,7 @@ typedef struct VertexOrdSt {
     u32 order;
 } *vertexOrd;
 
-typedef struct ColAmountSt { 
+typedef struct ColAmountSt {
     u32 color;
     u32 amount;
 } *colAmount;

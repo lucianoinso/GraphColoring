@@ -49,4 +49,4 @@ void print_vertex_data(vertex v);
 void print_all_neighs_data(vertex v);
 void print_vertex_neighs(vertex v);
 
-#endif
+#endif  // _VERTEXH_

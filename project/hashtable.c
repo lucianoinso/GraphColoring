@@ -15,13 +15,13 @@ struct Hashtable_St {
 
 hashtable create_hashtable(u32 n_buckets) {
     hashtable htable = NULL;
-    if (n_buckets > 0){
+    if (n_buckets > 0) {
         htable = calloc(1, sizeof(struct Hashtable_St));
-        if (htable != NULL){
+        if (htable != NULL) {
             htable->n_buckets = n_buckets;
             htable->hash_array = calloc(n_buckets, sizeof(hashtable));
-            
-            if (htable->hash_array == NULL){
+
+            if (htable->hash_array == NULL) {
                 destroy_hashtable(htable);
                 htable = NULL;
             }
@@ -32,7 +32,7 @@ hashtable create_hashtable(u32 n_buckets) {
 
 ht_node create_ht_node(vertex v) {
     ht_node h_node = calloc(1, sizeof(struct Ht_node_St));
-    if (h_node != NULL){
+    if (h_node != NULL) {
         h_node->key = get_vertex_name(v);
         h_node->vnode = v;
         h_node->next = NULL;
@@ -41,12 +41,12 @@ ht_node create_ht_node(vertex v) {
 }
 
 hashtable destroy_hashtable(hashtable htable) {
-    if(htable != NULL){
+    if (htable != NULL) {
         ht_node h_node;
         ht_node aux;
         for (u32 i = 0; i < htable->n_buckets; i++) {
             h_node = get_node_list_at_pos(htable, i);
-    
+
             while (h_node != NULL) {
                 aux = h_node;
                 h_node = h_node->next;
@@ -61,7 +61,7 @@ hashtable destroy_hashtable(hashtable htable) {
 }
 
 ht_node destroy_ht_node(ht_node h_node) {
-    if(h_node != NULL) {
+    if (h_node != NULL) {
         destroy_vertex(h_node->vnode);
         free(h_node);
         h_node = NULL;
@@ -178,23 +178,23 @@ void print_bucket_elements(hashtable htable, u32 pos) {
 void print_nodes_per_bucket(hashtable htable) {
     u32 *buckets_sum = calloc(htable->n_buckets, sizeof(u32));
     u32 max = 0;
+    ht_node aux = NULL;
 
-    ht_node aux = NULL;    
-    for (u32 i = 0; i < htable->n_buckets; i++){
+    for (u32 i = 0; i < htable->n_buckets; i++) {
         aux = htable->hash_array[i];
-        while(aux != NULL){
+        while (aux != NULL) {
             buckets_sum[i]++;
             aux = aux->next;
         }
-        if(buckets_sum[i] > max) {
+        if (buckets_sum[i] > max) {
             max = buckets_sum[i];
         }
     }
     u32 *amount_of_times = calloc(max + 1, sizeof(u32));
-    for (u32 i = 0; i < htable->n_buckets; i++){
+    for (u32 i = 0; i < htable->n_buckets; i++) {
         amount_of_times[buckets_sum[i]]++;
     }
-    for (u32 i = 0; i < max + 1; i++){
+    for (u32 i = 0; i < max + 1; i++) {
         printf("%"SCNu32" buckets have %"SCNu32 " vertices\n",
                amount_of_times[i], i);
     }
